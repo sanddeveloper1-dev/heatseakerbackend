@@ -1,0 +1,178 @@
+# CODEOWNERS
+# HeatSeaker Backend System - Contractor/Consultant Relationship
+
+# This file establishes code ownership and review requirements for the
+# ongoing contractor/consultant development relationship.
+
+# =============================================================================
+# CONTRACTOR/DEVELOPMENT TEAM
+# =============================================================================
+
+# Primary Contractor/Developer - Alexander Meyer
+# Responsible for ongoing development, maintenance, and technical consultation
+* @alexmeyer27
+
+# =============================================================================
+# CLIENT TEAM (TO BE CONFIGURED)
+# =============================================================================
+
+# Client Technical Lead - [CLIENT_TECH_LEAD]
+# Responsible for business requirements, feature prioritization, and final approvals
+# [CLIENT_TECH_LEAD] @[CLIENT_TECH_LEAD]
+
+# Client Business Owner - [CLIENT_BUSINESS_OWNER]
+# Responsible for business decisions and operational requirements
+# [CLIENT_BUSINESS_OWNER] @[CLIENT_BUSINESS_OWNER]
+
+# =============================================================================
+# CODE REVIEW REQUIREMENTS
+# =============================================================================
+
+# All changes require review and approval
+# - Contractor changes require client technical lead review
+# - Client changes require contractor technical review
+# - Business logic changes require client business owner approval
+
+# =============================================================================
+# ACCESS CONTROL
+# =============================================================================
+
+# Repository Access Levels:
+# - Contractor: Full development access (read/write)
+# - Client Technical Lead: Full access (read/write)
+# - Client Business Owner: Read access + approval rights
+# - Other Client Team: Read access only
+
+# =============================================================================
+# DEVELOPMENT WORKFLOW
+# =============================================================================
+
+# 1. Feature Development
+#    - Contractor creates feature branch from main
+#    - Development and testing completed
+#    - Pull request created with detailed description
+#    - Client technical lead reviews and approves
+#    - Merge to main branch
+
+# 2. Bug Fixes and Maintenance
+#    - Contractor creates hotfix branch
+#    - Fix implemented and tested
+#    - Pull request with fix description
+#    - Client technical lead reviews
+#    - Merge to main and deployment
+
+# 3. Emergency Fixes
+#    - Contractor implements critical fixes
+#    - Immediate deployment if necessary
+#    - Post-deployment review and documentation
+#    - Client notification of changes
+
+# =============================================================================
+# RESPONSIBILITIES
+# =============================================================================
+
+# Contractor (Alexander Meyer):
+# - Code quality and best practices
+# - Testing and quality assurance
+# - Performance optimization
+# - Security implementation
+# - Technical documentation
+# - System maintenance
+
+# Client Technical Lead:
+# - Business requirements validation
+# - Feature prioritization
+# - Technical architecture approval
+# - Code review and approval
+# - Deployment authorization
+
+# Client Business Owner:
+# - Business strategy alignment
+# - Resource allocation
+# - Risk management
+# - Compliance oversight
+# - Final business decisions
+
+# =============================================================================
+# COMMUNICATION CHANNELS
+# =============================================================================
+
+# Regular Updates:
+# - Weekly development status reports
+# - Monthly performance and quality reviews
+# - Quarterly strategic planning sessions
+
+# Issue Resolution:
+# - GitHub Issues for bug tracking
+# - Direct communication for urgent matters
+# - Escalation procedures for complex issues
+
+# =============================================================================
+# COMPLIANCE AND AUDITING
+# =============================================================================
+
+# All changes are tracked and auditable:
+# - Git commit history with detailed messages
+# - Pull request documentation and approvals
+# - Change logs and release notes
+# - Performance metrics and monitoring
+
+# =============================================================================
+# SECURITY CONSIDERATIONS
+# =============================================================================
+
+# Access Control:
+# - Contractor access is for development purposes only
+# - Client maintains operational control
+# - Confidentiality requirements enforced
+# - Regular security assessments
+
+# =============================================================================
+# LIABILITY FRAMEWORK
+# =============================================================================
+
+# ZERO BETTING LIABILITY:
+# - Service provider assumes no liability for betting operations
+# - Client bears 100% responsibility for business outcomes
+# - Technical support limited to software functionality
+# - No financial or legal advice provided
+
+# =============================================================================
+# CONTACT INFORMATION
+# =============================================================================
+
+# Contractor:
+# - Name: Alexander Meyer
+# - Email: alexmeyer@gmail.com
+# - GitHub: @alexmeyer27
+# - Role: Software Development & Maintenance Contractor
+
+# Client:
+# - Organization: [CLIENT_ORG_NAME]
+# - Technical Lead: [CLIENT_TECH_LEAD]
+# - Business Owner: [CLIENT_BUSINESS_OWNER]
+# - Role: System Owner and Business Operator
+
+# =============================================================================
+# IMPORTANT NOTES
+# =============================================================================
+
+# This CODEOWNERS file establishes an ongoing contractor relationship.
+# It is NOT a complete handover or ownership transfer.
+
+# The contractor maintains ongoing involvement in development and maintenance.
+# Client maintains full ownership and operational control.
+
+# All changes must comply with the commercial license agreement and
+# zero betting liability framework established in the legal documents.
+
+# For questions or clarifications, contact: alexmeyer@gmail.com
+
+# =============================================================================
+# VERSION AND STATUS
+# =============================================================================
+
+# Version: 1.0
+# Status: Active Contractor Development Relationship
+# Last Updated: [DATE]
+# Next Review: [REVIEW_DATE]

@@ -1,3 +1,17 @@
+/**
+ * HeatSeaker Backend - Commercial Software
+ * Copyright (c) 2024 [CLIENT_ORG_NAME]
+ * Software Development & Maintenance by Alexander Meyer
+ * 
+ * ZERO LIABILITY NOTICE: Service provider assumes no liability for betting operations.
+ * Client bears 100% responsibility for all business outcomes.
+ * 
+ * This software is provided "AS IS" without warranty.
+ * For complete terms, see SERVICE_AGREEMENT.md
+ * 
+ * Race data ingestion service for processing daily race information
+ */
+
 import { TrackModel, Track } from "../models/Track";
 import { RaceModel, Race } from "../models/Race";
 import { RaceEntryModel, RaceEntry } from "../models/RaceEntry";
@@ -51,18 +65,18 @@ export class RaceIngestionService {
 				try {
 					const result = await this.processRace(raceData, data.source);
 
-								if (result.success) {
-				statistics.races_processed++;
-				statistics.entries_processed += result.entriesProcessed || 0;
-				if (result.raceId) {
-					processedRaces.push(result.raceId);
-				}
-			} else {
-				statistics.races_skipped++;
-				if (result.error) {
-					statistics.errors.push(result.error);
-				}
-			}
+					if (result.success) {
+						statistics.races_processed++;
+						statistics.entries_processed += result.entriesProcessed || 0;
+						if (result.raceId) {
+							processedRaces.push(result.raceId);
+						}
+					} else {
+						statistics.races_skipped++;
+						if (result.error) {
+							statistics.errors.push(result.error);
+						}
+					}
 				} catch (error: any) {
 					statistics.races_skipped++;
 					const errorMsg = `Race ${raceData.race_id}: ${error.message}`;

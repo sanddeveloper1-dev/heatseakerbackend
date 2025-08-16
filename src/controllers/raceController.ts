@@ -1,3 +1,17 @@
+/**
+ * HeatSeaker Backend - Commercial Software
+ * Copyright (c) 2024 [CLIENT_ORG_NAME]
+ * Software Development & Maintenance by Alexander Meyer
+ * 
+ * ZERO LIABILITY NOTICE: Service provider assumes no liability for betting operations.
+ * Client bears 100% responsibility for all business outcomes.
+ * 
+ * This software is provided "AS IS" without warranty.
+ * For complete terms, see SERVICE_AGREEMENT.md
+ * 
+ * Race controller for handling race data ingestion and management
+ */
+
 import { Request, Response } from "express";
 import { RaceIngestionService } from "../services/raceIngestionService";
 import { validateDailyRaceData } from "../validators/raceValidator";

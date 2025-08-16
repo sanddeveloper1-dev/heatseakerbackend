@@ -4,7 +4,7 @@
   "main": "index.js",
   "repository": "https://github.com/alexmeyer27/heatseakerbackend.git",
   "author": "Alex <alexmeyer@gmail.com>",
-  "license": "MIT",
+  "license": "Commercial",
   "type": "module",
   "scripts": {
     "start": "tsx ./src/index.ts",
