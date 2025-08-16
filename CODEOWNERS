@@ -1,178 +1,155 @@
 # CODEOWNERS
-# HeatSeaker Backend System - Contractor/Consultant Relationship
 
-# This file establishes code ownership and review requirements for the
-# ongoing contractor/consultant development relationship.
+**Code ownership and review requirements for HeatSeaker Backend System**
 
-# =============================================================================
-# CONTRACTOR/DEVELOPMENT TEAM
-# =============================================================================
+## Repository Ownership
 
-# Primary Contractor/Developer - Alexander Meyer
-# Responsible for ongoing development, maintenance, and technical consultation
-* @alexmeyer27
+**⚠️ IMPORTANT: This repository is maintained under a contractor/consultant relationship.**
 
-# =============================================================================
-# CLIENT TEAM (TO BE CONFIGURED)
-# =============================================================================
+- **Client Organization**: Paul Stortini - Repository ownership and business control
+- **Service Provider**: Alexander Meyer - Technical development and maintenance
+- **Technical Lead**: sanddeveloper1@gmail.com - Technical decisions and architecture
+- **Operations Team**: Paul Stortini - Operational procedures and business decisions
 
-# Client Technical Lead - [CLIENT_TECH_LEAD]
-# Responsible for business requirements, feature prioritization, and final approvals
-# [CLIENT_TECH_LEAD] @[CLIENT_TECH_LEAD]
+## File Ownership
 
-# Client Business Owner - [CLIENT_BUSINESS_OWNER]
-# Responsible for business decisions and operational requirements
-# [CLIENT_BUSINESS_OWNER] @[CLIENT_BUSINESS_OWNER]
+### Core System Files
+* @sanddeveloper1 @alexandermeyer
+*.ts
+*.js
+*.json
+*.md
+*.sql
 
-# =============================================================================
-# CODE REVIEW REQUIREMENTS
-# =============================================================================
+### Configuration Files
+* @sanddeveloper1 @alexandermeyer
+src/config/
+package.json
+tsconfig.json
+jest.config.cjs
+dockerfile
+Dockerrun.aws.json
 
-# All changes require review and approval
-# - Contractor changes require client technical lead review
-# - Client changes require contractor technical review
-# - Business logic changes require client business owner approval
+### Documentation
+* @sanddeveloper1 @alexandermeyer
+*.md
+docs/
+*.txt
+migrations/
 
-# =============================================================================
-# ACCESS CONTROL
-# =============================================================================
+### Security & Compliance
+* @[CLIENT_SECURITY_TEAM] @[CLIENT_LEGAL_TEAM]
+SECURITY.md
+COMPLIANCE.md
+SERVICE_AGREEMENT.md
+LICENSE
+NOTICE
 
-# Repository Access Levels:
-# - Contractor: Full development access (read/write)
-# - Client Technical Lead: Full access (read/write)
-# - Client Business Owner: Read access + approval rights
-# - Other Client Team: Read access only
+### Operations & Procedures
+* @PaulStortini @sanddeveloper1
+MIGRATION_CHECKLIST.md
+ARCHITECTURE.md
 
-# =============================================================================
-# DEVELOPMENT WORKFLOW
-# =============================================================================
+### Contributing & Development
+* @PaulStortini @alexandermeyer
+CONTRIBUTING.md
+PULL_REQUEST_TEMPLATE.md
+.github/
 
-# 1. Feature Development
-#    - Contractor creates feature branch from main
-#    - Development and testing completed
-#    - Pull request created with detailed description
-#    - Client technical lead reviews and approves
-#    - Merge to main branch
+## Review Requirements
 
-# 2. Bug Fixes and Maintenance
-#    - Contractor creates hotfix branch
-#    - Fix implemented and tested
-#    - Pull request with fix description
-#    - Client technical lead reviews
-#    - Merge to main and deployment
+### All Changes
+- **Primary Review**: sanddeveloper1@gmail.com
+- **Secondary Review**: Paul Stortini (if operational impact)
 
-# 3. Emergency Fixes
-#    - Contractor implements critical fixes
-#    - Immediate deployment if necessary
-#    - Post-deployment review and documentation
-#    - Client notification of changes
+### Runtime Logic Changes
+- **Primary Review**: sanddeveloper1@gmail.com
+- **Secondary Review**: @alexandermeyer (service provider)
+- **Security Review**: Paul Stortini
+- **Performance Review**: Paul Stortini
 
-# =============================================================================
-# RESPONSIBILITIES
-# =============================================================================
+### Security Changes
+- **Primary Review**: Paul Stortini
+- **Secondary Review**: sanddeveloper1@gmail.com
+- **Legal Review**: Paul Stortini (if required)
 
-# Contractor (Alexander Meyer):
-# - Code quality and best practices
-# - Testing and quality assurance
-# - Performance optimization
-# - Security implementation
-# - Technical documentation
-# - System maintenance
+### Documentation Changes
+- **Primary Review**: Paul Stortini
+- **Secondary Review**: sanddeveloper1@gmail.com
+- **Service Provider Review**: @alexandermeyer (if technical content)
 
-# Client Technical Lead:
-# - Business requirements validation
-# - Feature prioritization
-# - Technical architecture approval
-# - Code review and approval
-# - Deployment authorization
+### Configuration Changes
+- **Primary Review**: Paul Stortini
+- **Secondary Review**: sanddeveloper1@gmail.com
+- **Service Provider Review**: @alexandermeyer (if technical impact)
+- **Security Review**: Paul Stortini
 
-# Client Business Owner:
-# - Business strategy alignment
-# - Resource allocation
-# - Risk management
-# - Compliance oversight
-# - Final business decisions
+## Contact Information
 
-# =============================================================================
-# COMMUNICATION CHANNELS
-# =============================================================================
+### Primary Contacts
+- **Technical Lead**: sanddeveloper1@gmail.com
+- **Operations Team**: Paul Stortini
+- **Security Team**: Paul Stortini
+- **Development Team**: Paul Stortini
 
-# Regular Updates:
-# - Weekly development status reports
-# - Monthly performance and quality reviews
-# - Quarterly strategic planning sessions
+### Service Provider Contact
+- **Alexander Meyer**: alexmeyer@gmail.com - Technical development and maintenance
 
-# Issue Resolution:
-# - GitHub Issues for bug tracking
-# - Direct communication for urgent matters
-# - Escalation procedures for complex issues
+### Escalation Contacts
+- **Project Manager**: Paul Stortini
+- **CTO/Technical Director**: Paul Stortini
+- **Legal Team**: Paul Stortini
 
-# =============================================================================
-# COMPLIANCE AND AUDITING
-# =============================================================================
+## Review Guidelines
 
-# All changes are tracked and auditable:
-# - Git commit history with detailed messages
-# - Pull request documentation and approvals
-# - Change logs and release notes
-# - Performance metrics and monitoring
+### Code Review Standards
+- **All changes** require at least one review
+- **Runtime changes** require two reviews (client + service provider)
+- **Security changes** require security team review
+- **Performance changes** require performance review
 
-# =============================================================================
-# SECURITY CONSIDERATIONS
-# =============================================================================
+### Documentation Review Standards
+- **Accuracy and completeness**
+- **Clarity and readability**
+- **Consistency with existing docs**
+- **Proper formatting and structure**
 
-# Access Control:
-# - Contractor access is for development purposes only
-# - Client maintains operational control
-# - Confidentiality requirements enforced
-# - Regular security assessments
+### Configuration Review Standards
+- **Correctness of values**
+- **Security implications**
+- **Operational impact**
+- **Documentation updates**
 
-# =============================================================================
-# LIABILITY FRAMEWORK
-# =============================================================================
+## Contractor Relationship
 
-# ZERO BETTING LIABILITY:
-# - Service provider assumes no liability for betting operations
-# - Client bears 100% responsibility for business outcomes
-# - Technical support limited to software functionality
-# - No financial or legal advice provided
+### Current Status
+- **Repository Owner**: Paul Stortini
+- **Primary Maintainer**: sanddeveloper1@gmail.com
+- **Service Provider**: Alexander Meyer (ongoing development)
+- **Operational Control**: Paul Stortini
 
-# =============================================================================
-# CONTACT INFORMATION
-# =============================================================================
+### Service Provider Role
+- **Technical Development**: New features and improvements
+- **System Maintenance**: Bug fixes and updates
+- **Technical Support**: Troubleshooting and integration
+- **Architecture Guidance**: Technical decisions and design
 
-# Contractor:
-# - Name: Alexander Meyer
-# - Email: alexmeyer@gmail.com
-# - GitHub: @alexmeyer27
-# - Role: Software Development & Maintenance Contractor
+### Client Responsibilities
+- **Business Decisions**: All betting and financial decisions
+- **Operational Control**: System operation and user management
+- **Regulatory Compliance**: Gambling laws and financial regulations
+- **Risk Management**: Financial and operational risk decisions
 
-# Client:
-# - Organization: [CLIENT_ORG_NAME]
-# - Technical Lead: [CLIENT_TECH_LEAD]
-# - Business Owner: [CLIENT_BUSINESS_OWNER]
-# - Role: System Owner and Business Operator
+### Zero Betting Liability
+- **Service Provider**: ZERO liability for betting operations
+- **Client**: 100% responsibility for all business outcomes
+- **Liability Separation**: Clearly defined in SERVICE_AGREEMENT.md
 
-# =============================================================================
-# IMPORTANT NOTES
-# =============================================================================
+---
 
-# This CODEOWNERS file establishes an ongoing contractor relationship.
-# It is NOT a complete handover or ownership transfer.
+**⚠️ REMINDER: This repository operates under a contractor relationship with zero betting liability.**
 
-# The contractor maintains ongoing involvement in development and maintenance.
-# Client maintains full ownership and operational control.
+**For technical development and maintenance, contact the service provider (Alexander Meyer).**
+**For business operations and betting decisions, contact your internal team.**
 
-# All changes must comply with the commercial license agreement and
-# zero betting liability framework established in the legal documents.
-
-# For questions or clarifications, contact: alexmeyer@gmail.com
-
-# =============================================================================
-# VERSION AND STATUS
-# =============================================================================
-
-# Version: 1.0
-# Status: Active Contractor Development Relationship
-# Last Updated: [DATE]
-# Next Review: [REVIEW_DATE]
+**See SERVICE_AGREEMENT.md for complete liability framework and relationship terms.**
