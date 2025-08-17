@@ -13,7 +13,7 @@ The HeatSeaker Backend System is a commercial software application providing rac
 **⚠️ IMPORTANT: This is NOT open source software.**
 
 - **License Type:** Commercial Software License Agreement
-- **Copyright:** Copyright (c) 2024 [CLIENT_ORG_NAME]
+- **Copyright:** Copyright (c) 2024 Paul Stortini
 - **Development:** Software Development & Maintenance by Alexander Meyer
 - **Relationship:** Ongoing Contractor/Consultant Services
 
@@ -173,7 +173,7 @@ yarn build
 This software is provided under a commercial license agreement with restrictive terms. No redistribution, modification, or reverse engineering is permitted without explicit written permission.
 
 ### Intellectual Property
-All intellectual property rights remain with [CLIENT_ORG_NAME]. This agreement does not transfer ownership of the software system.
+All intellectual property rights remain with Paul Stortini. This agreement does not transfer ownership of the software system.
 
 ### Confidentiality
 This software and related documentation contain confidential and proprietary information. Unauthorized disclosure is prohibited.
@@ -186,7 +186,7 @@ This software and related documentation contain confidential and proprietary inf
 - **Role:** Software Development & Maintenance Contractor
 
 ### Client
-- **Organization:** [CLIENT_ORG_NAME]
+- **Organization:** Paul Stortini
 - **Contact:** [CLIENT_TECH_LEAD]
 - **Role:** System Owner and Business Operator
 

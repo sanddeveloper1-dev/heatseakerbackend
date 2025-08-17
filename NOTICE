@@ -3,7 +3,7 @@ NOTICE OF COMMERCIAL LICENSE STATUS
 This software is NOT open source software.
 
 PROJECT: HeatSeaker Backend System
-COPYRIGHT: Copyright (c) 2024 [CLIENT_ORG_NAME]
+COPYRIGHT: Copyright (c) 2024 Paul Stortini
 DEVELOPMENT: Software Development & Maintenance by Alexander Meyer
 LICENSE TYPE: Commercial Software License Agreement
 RELATIONSHIP: Ongoing Contractor/Consultant Services
@@ -13,7 +13,7 @@ IMPORTANT LEGAL NOTICES:
 1. COMMERCIAL LICENSE
    This software is provided under a commercial license agreement.
    NO redistribution, modification, or reverse engineering is permitted
-   without explicit written permission from [CLIENT_ORG_NAME].
+   without explicit written permission from Paul Stortini.
 
 2. ZERO BETTING LIABILITY
    Service provider (Alexander Meyer) assumes ZERO liability for:
@@ -36,12 +36,12 @@ IMPORTANT LEGAL NOTICES:
    - Database management and optimization
 
 4. INTELLECTUAL PROPERTY
-   All intellectual property rights remain with [CLIENT_ORG_NAME].
+   All intellectual property rights remain with Paul Stortini.
    This agreement does not transfer ownership of the software system.
 
 5. CONFIDENTIALITY
    This software and related documentation contain confidential
-   and proprietary information of [CLIENT_ORG_NAME].
+   and proprietary information of Paul Stortini.
 
 6. LEGAL FRAMEWORK
    This software is governed by:
@@ -52,7 +52,7 @@ IMPORTANT LEGAL NOTICES:
 7. CONTACT INFORMATION
    For questions about licensing or liability:
    - Service Provider: alexmeyer@gmail.com
-   - Client: [CLIENT_ORG_NAME]
+   - Client: Paul Stortini
 
 8. DISCLAIMER
    This software is provided "AS IS" without warranty.
@@ -64,7 +64,7 @@ IMPORTANT LEGAL NOTICES:
 WARNING: This is commercial software with restrictive licensing terms.
 Unauthorized use, modification, or distribution may result in legal action.
 
-[CLIENT_ORG_NAME]: [TO BE FILLED]
+[CLIENT_ORG_NAME]: Paul Stortini
 [EFFECTIVE_DATE]: [TO BE FILLED]
 
 ---

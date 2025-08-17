@@ -1,12 +1,12 @@
 COMMERCIAL SOFTWARE LICENSE AGREEMENT
 
-Copyright (c) 2024 [CLIENT_ORG_NAME]
+Copyright (c) 2024 Paul Stortini
 Software Development & Maintenance by Alexander Meyer
 
 This is NOT open source software. This software is provided under a commercial license agreement.
 
 1. LICENSE GRANT
-Subject to the terms and conditions of this Agreement, [CLIENT_ORG_NAME] ("Client") grants to the Service Provider a limited, non-exclusive, non-transferable license to use, modify, and maintain the Software solely for the purpose of providing ongoing development and maintenance services to Client.
+Subject to the terms and conditions of this Agreement, Paul Stortini ("Client") grants to the Service Provider a limited, non-exclusive, non-transferable license to use, modify, and maintain the Software solely for the purpose of providing ongoing development and maintenance services to Client.
 
 2. RESTRICTIONS
 The Service Provider may not:
@@ -51,6 +51,6 @@ This Agreement constitutes the entire agreement between the parties concerning t
 
 For complete terms and conditions, see SERVICE_AGREEMENT.md
 
-[CLIENT_ORG_NAME]: [TO BE FILLED]
+[CLIENT_ORG_NAME]: Paul Stortini
 [SERVICE_PROVIDER_EMAIL]: alexmeyer@gmail.com
-[JURISDICTION]: [TO BE FILLED]
+[JURISDICTION]: Colorado
