@@ -18,7 +18,7 @@ import * as fs from "fs";
 interface BetDetail {
   trackCode: string;
   raceNumber: number;
-  horseNumber: number | string;
+  horseNumber?: number | string; // Optional when betCombination is present
   exactaHorseNumbers?: string; // Supports multiple horses in Exacta
   betAmount: string;
   comboType?: string; // For Box, Key, or Wheel bets

@@ -14,11 +14,20 @@
 
 import { Request, Response, NextFunction } from "express";
 import config from "../config/config";
+import logger from "../config/logger";
 
 /**
 	•	Middleware to validate API Key in request headers
 */
 const apiKeyAuth = (req: Request, res: Response, next: NextFunction): any => {
+	// Check if API key is configured
+	if (!config.apiKey) {
+		logger.error("API key not configured - system is not secure");
+		return res.status(500).json({
+			error: "System configuration error - contact administrator"
+		});
+	}
+
 	const providedApiKey: string | undefined = req.header(`x-api-key`);
 
 	if (!providedApiKey) {

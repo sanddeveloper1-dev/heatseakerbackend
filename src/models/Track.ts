@@ -14,6 +14,7 @@
 
 import pool from "../config/database";
 import logger from "../config/logger";
+import { DatabaseClient } from "../types/raceTypes";
 
 export interface Track {
 	id?: number;
@@ -74,6 +75,36 @@ export class TrackModel {
 			return await this.create(track);
 		} catch (error) {
 			logger.error("Error in getOrCreate track", { track, error });
+			throw error;
+		}
+	}
+
+	/**
+	 * Get or create a track with database client (for transactions)
+	 */
+	static async getOrCreateWithClient(client: DatabaseClient, track: Track): Promise<Track> {
+		try {
+			// Try to find existing track
+			const result = await client.query(
+				"SELECT * FROM tracks WHERE code = $1",
+				[track.code]
+			);
+			const existingTrack = result.rows[0] || null;
+
+			if (existingTrack) {
+				return existingTrack;
+			}
+
+			// Create new track if not found
+			const createResult = await client.query(
+				`INSERT INTO tracks (code, name, location) 
+         VALUES ($1, $2, $3) 
+         RETURNING *`,
+				[track.code, track.name, track.location]
+			);
+			return createResult.rows[0];
+		} catch (error) {
+			logger.error("Error in getOrCreateWithClient track", { track, error });
 			throw error;
 		}
 	}

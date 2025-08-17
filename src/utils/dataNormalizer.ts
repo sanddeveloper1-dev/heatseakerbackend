@@ -24,7 +24,17 @@ export function convertDateFormat(dateStr: string): string {
 	const match = dateStr.match(/^(\d{1,2})-(\d{1,2})-(\d{2})$/);
 	if (match) {
 		const [, month, day, year] = match;
-		const fullYear = parseInt(year) < 50 ? `20${year}` : `19${year}`;
+		// Use current year as reference for century determination
+		const currentYear = new Date().getFullYear();
+		const currentCentury = Math.floor(currentYear / 100) * 100;
+		const yearNum = parseInt(year);
+
+		// Determine century: if year is within 10 years of current year, use current century
+		// Otherwise, assume it's the previous century
+		const fullYear = yearNum >= (currentYear % 100 - 10) ?
+			currentCentury + yearNum :
+			currentCentury - 100 + yearNum;
+
 		return `${fullYear}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 	}
 

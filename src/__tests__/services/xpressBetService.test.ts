@@ -35,13 +35,16 @@ describe("Xpressbet Service", () => {
       const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1)
         .toString()
         .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
-      expect(fileName).toBe(`${mockTrack}-${mockBetType}-Bet-Race-${mockRaceNumber}-${formattedDate}.xlsx`);
+      expect(fileName).toBe(`${mockTrack}-${mockBetType}-Bet-Race-${mockRaceNumber}-${formattedDate}.csv`);
     });
   });
 
   describe("submitBet", () => {
     it("should call the Xpressbet API with the correct file", async () => {
-      (axios.post as jest.Mock).mockResolvedValue({ data: { success: true } });
+      (axios.post as jest.Mock).mockResolvedValue({
+        data: "<html><body>Success</body></html>",
+        status: 200
+      });
 
       const result = await submitBet(mockFilePath, "WIN", mockBets);
 
@@ -52,13 +55,16 @@ describe("Xpressbet Service", () => {
           headers: expect.any(Object),
         })
       );
-      expect(result).toEqual({ success: true });
+      expect(result).toEqual("<html><body>Success</body></html>");
     });
 
     it("should delete the file after submission", async () => {
-      (axios.post as jest.Mock).mockResolvedValue({ data: { success: true } });
+      (axios.post as jest.Mock).mockResolvedValue({
+        data: "<html><body>Success</body></html>",
+        status: 200
+      });
 
-      await submitBet(mockFilePath);
+      await submitBet(mockFilePath, "WIN", []);
 
       expect(fs.existsSync(mockFilePath)).toBe(false);
     });
@@ -66,13 +72,71 @@ describe("Xpressbet Service", () => {
     it("should throw an error if the file does not exist", async () => {
       fs.unlinkSync(mockFilePath); // Remove the file
 
-      await expect(submitBet(mockFilePath)).rejects.toThrow(`File not found: ${mockFilePath}`);
+      await expect(submitBet(mockFilePath, "WIN", [])).rejects.toThrow(`File not found: ${mockFilePath}`);
     });
 
     it("should throw an error if the API call fails", async () => {
-      (axios.post as jest.Mock).mockRejectedValue({ response: { data: "API error" } });
+      (axios.post as jest.Mock).mockRejectedValue({
+        response: { data: "API error" },
+        message: "API error"
+      });
 
-      await expect(submitBet(mockFilePath)).rejects.toThrow("Bet submission failed: API error");
+      await expect(submitBet(mockFilePath, "WIN", [])).rejects.toThrow("Bet submission failed: API error");
+    });
+
+    it("should handle HTML response with validation errors", async () => {
+      const htmlResponse = `
+        <html>
+          <body>
+            <div id="inva">
+              <div>Invalid bet amount</div>
+              <div>Invalid horse number</div>
+            </div>
+          </body>
+        </html>
+      `;
+
+      (axios.post as jest.Mock).mockResolvedValue({
+        data: htmlResponse,
+        status: 200
+      });
+
+      const result = await submitBet(mockFilePath, "WIN", mockBets);
+
+      expect(result).toEqual(htmlResponse);
+    });
+
+    it("should handle HTML response without validation errors", async () => {
+      const htmlResponse = `
+        <html>
+          <body>
+            <div id="inva">
+            </div>
+          </body>
+        </html>
+      `;
+
+      (axios.post as jest.Mock).mockResolvedValue({
+        data: htmlResponse,
+        status: 200
+      });
+
+      const result = await submitBet(mockFilePath, "WIN", mockBets);
+
+      expect(result).toEqual(htmlResponse);
+    });
+
+    it("should handle non-HTML response", async () => {
+      const stringResponse = "Bet accepted successfully";
+
+      (axios.post as jest.Mock).mockResolvedValue({
+        data: stringResponse,
+        status: 200
+      });
+
+      const result = await submitBet(mockFilePath, "WIN", mockBets);
+
+      expect(result).toEqual(stringResponse);
     });
   });
 
@@ -87,10 +151,10 @@ describe("Xpressbet Service", () => {
       const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1)
         .toString()
         .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
-      const expectedFileName = `${mockTrack}-${mockBetType}-Bet-Race-${mockRaceNumber}-${formattedDate}.xlsx`;
+      const expectedFileName = `${mockTrack}-${mockBetType}-Bet-Race-${mockRaceNumber}-${formattedDate}.csv`;
 
-      expect(logger.info).toHaveBeenCalledWith(`Generated file name: ${expectedFileName}`);
-      expect(mockSubmitBet).toHaveBeenCalledWith(mockFilePath);
+      expect(logger.info).toHaveBeenCalledWith(`Generated file name: ${expectedFileName} for track ${mockTrack}, race ${mockRaceNumber}, bet type ${mockBetType}`);
+      expect(mockSubmitBet).toHaveBeenCalledWith(mockFilePath, mockBetType, mockBets);
       expect(result).toEqual({ success: true });
     });
 
@@ -98,15 +162,15 @@ describe("Xpressbet Service", () => {
       const mockSubmitBet = jest.fn().mockRejectedValue(new Error("SubmitBet Error"));
       jest.spyOn(require("../../services/xpressbetService"), "submitBet").mockImplementation(mockSubmitBet);
 
-      await expect(placeBet(mockTrack, mockBetType, mockRaceNumber, mockFilePath)).rejects.toThrow("SubmitBet Error");
+      await expect(placeBet(mockTrack, mockBetType, mockRaceNumber, mockFilePath, [])).rejects.toThrow("SubmitBet Error");
 
       const date = new Date();
       const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1)
         .toString()
         .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
-      const expectedFileName = `${mockTrack}-${mockBetType}-Bet-Race-${mockRaceNumber}-${formattedDate}.xlsx`;
+      const expectedFileName = `${mockTrack}-${mockBetType}-Bet-Race-${mockRaceNumber}-${formattedDate}.csv`;
 
-      expect(logger.info).toHaveBeenCalledWith(`Generated file name: ${expectedFileName}`);
+      expect(logger.info).toHaveBeenCalledWith(`Generated file name: ${expectedFileName} for track ${mockTrack}, race ${mockRaceNumber}, bet type ${mockBetType}`);
     });
   });
 });

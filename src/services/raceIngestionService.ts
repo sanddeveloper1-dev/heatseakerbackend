@@ -24,27 +24,21 @@ import {
 	validateRaceEntry
 } from "../utils/dataNormalizer";
 import logger from "../config/logger";
-
-export interface ProcessingStatistics {
-	races_processed: number;
-	entries_processed: number;
-	races_skipped: number;
-	entries_skipped: number;
-	errors: string[];
-}
-
-export interface ProcessingResult {
-	success: boolean;
-	message: string;
-	statistics: ProcessingStatistics;
-	processed_races: string[];
-}
+import {
+	DailyRaceDataRequest,
+	ProcessingResult,
+	ProcessingStatistics,
+	RaceProcessingResult,
+	TransactionResult,
+	DatabaseClient,
+	RaceData
+} from "../types/raceTypes";
 
 export class RaceIngestionService {
 	/**
 	 * Process daily race data
 	 */
-	static async processDailyRaceData(data: any): Promise<ProcessingResult> {
+	static async processDailyRaceData(data: DailyRaceDataRequest): Promise<ProcessingResult> {
 		const statistics: ProcessingStatistics = {
 			races_processed: 0,
 			entries_processed: 0,
@@ -53,7 +47,7 @@ export class RaceIngestionService {
 			errors: []
 		};
 
-		const processedRaces: string[] = [];
+		let processedRaces: string[] = [];
 
 		try {
 			logger.info("Starting daily race data processing", {
@@ -61,29 +55,15 @@ export class RaceIngestionService {
 				raceCount: data.races.length
 			});
 
-			for (const raceData of data.races) {
-				try {
-					const result = await this.processRace(raceData, data.source);
+			// Process races with transaction support
+			const results = await this.processRacesWithTransaction(data.races, data.source);
 
-					if (result.success) {
-						statistics.races_processed++;
-						statistics.entries_processed += result.entriesProcessed || 0;
-						if (result.raceId) {
-							processedRaces.push(result.raceId);
-						}
-					} else {
-						statistics.races_skipped++;
-						if (result.error) {
-							statistics.errors.push(result.error);
-						}
-					}
-				} catch (error: any) {
-					statistics.races_skipped++;
-					const errorMsg = `Race ${raceData.race_id}: ${error.message}`;
-					statistics.errors.push(errorMsg);
-					logger.error("Error processing race", { raceData, error });
-				}
-			}
+			// Aggregate results
+			statistics.races_processed = results.successful.length;
+			statistics.races_skipped = results.failed.length;
+			statistics.entries_processed = results.totalEntries;
+			statistics.errors = results.errors;
+			processedRaces = results.successful.map(r => r.raceId).filter(Boolean);
 
 			const success = statistics.races_processed > 0;
 			const message = success
@@ -111,14 +91,60 @@ export class RaceIngestionService {
 	}
 
 	/**
-	 * Process a single race
+	 * Process races with transaction support for data integrity
 	 */
-	private static async processRace(raceData: any, source: string): Promise<{
-		success: boolean;
-		raceId?: string;
-		entriesProcessed?: number;
-		error?: string;
-	}> {
+	private static async processRacesWithTransaction(races: RaceData[], source: string): Promise<TransactionResult> {
+		const successful: Array<{ raceId: string; entriesProcessed: number }> = [];
+		const failed: Array<{ raceId: string; error: string }> = [];
+		const errors: string[] = [];
+		let totalEntries = 0;
+
+		// Import database pool for transaction management
+		const { default: pool } = await import("../config/database");
+
+		for (const raceData of races) {
+			const client = await pool.connect();
+			try {
+				await client.query("BEGIN");
+
+				const result = await this.processRaceWithClient(client, raceData, source);
+
+				if (result.success) {
+					await client.query("COMMIT");
+					successful.push({
+						raceId: result.raceId!,
+						entriesProcessed: result.entriesProcessed || 0
+					});
+					totalEntries += result.entriesProcessed || 0;
+				} else {
+					await client.query("ROLLBACK");
+					failed.push({
+						raceId: raceData.race_id || "unknown",
+						error: result.error || "Unknown error"
+					});
+					errors.push(`Race ${raceData.race_id}: ${result.error}`);
+				}
+			} catch (error: any) {
+				await client.query("ROLLBACK");
+				const errorMsg = `Race ${raceData.race_id}: ${error.message}`;
+				failed.push({
+					raceId: raceData.race_id || "unknown",
+					error: errorMsg
+				});
+				errors.push(errorMsg);
+				logger.error("Error processing race", { raceData, error });
+			} finally {
+				client.release();
+			}
+		}
+
+		return { successful, failed, totalEntries, errors };
+	}
+
+	/**
+	 * Process a single race with database client
+	 */
+	private static async processRaceWithClient(client: DatabaseClient, raceData: RaceData, source: string): Promise<RaceProcessingResult> {
 		try {
 			// Validate race number
 			const raceNumber = validateRaceNumber(raceData.race_number);
@@ -133,7 +159,7 @@ export class RaceIngestionService {
 			const trackCode = extractTrackCode(raceData.track);
 			const trackName = getStandardizedTrackName(raceData.track);
 
-			const track = await TrackModel.getOrCreate({
+			const track = await TrackModel.getOrCreateWithClient(client, {
 				code: trackCode,
 				name: trackName
 			});
@@ -151,22 +177,22 @@ export class RaceIngestionService {
 				date: new Date(normalizedDate),
 				race_number: raceNumber,
 				prev_race_1_winner_horse_number: raceData.prev_race_1_winner_horse_number
-					? parseInt(raceData.prev_race_1_winner_horse_number)
+					? parseInt(String(raceData.prev_race_1_winner_horse_number))
 					: undefined,
 				prev_race_1_winner_payout: raceData.prev_race_1_winner_payout
-					? parseFloat(raceData.prev_race_1_winner_payout)
+					? parseFloat(String(raceData.prev_race_1_winner_payout))
 					: undefined,
 				prev_race_2_winner_horse_number: raceData.prev_race_2_winner_horse_number
-					? parseInt(raceData.prev_race_2_winner_horse_number)
+					? parseInt(String(raceData.prev_race_2_winner_horse_number))
 					: undefined,
 				prev_race_2_winner_payout: raceData.prev_race_2_winner_payout
-					? parseFloat(raceData.prev_race_2_winner_payout)
+					? parseFloat(String(raceData.prev_race_2_winner_payout))
 					: undefined,
 				source_file: source
 			};
 
 			// Upsert race
-			await RaceModel.upsert(race);
+			await RaceModel.upsertWithClient(client, race);
 
 			// Process entries
 			const validEntries = raceData.entries.filter(validateRaceEntry);
@@ -184,7 +210,7 @@ export class RaceIngestionService {
 			);
 
 			// Batch upsert entries
-			await RaceEntryModel.batchUpsert(normalizedEntries);
+			await RaceEntryModel.batchUpsertWithClient(client, normalizedEntries);
 
 			logger.info("Race processed successfully", {
 				raceId,

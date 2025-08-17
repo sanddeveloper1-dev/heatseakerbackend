@@ -25,23 +25,24 @@ describe("Bet Controller", () => {
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({
       success: false,
-      message: '"bets" must contain at least 1 items',
+      message: '"betType" is not allowed to be empty',
     });
   });
 
   it("should return 400 if the betType is invalid", async () => {
     const req = mockRequest({
-      bets: [{ trackCode: "ABC", raceNumber: 1, horseNumber: 5, betAmount: `100.00`, betType: "WIN" }],
-      betType: "invalidBetType",
+      bets: [{ trackCode: "ABC", raceNumber: 1, horseNumber: 5, betAmount: `100.00`, betType: "INVALID_TYPE" }],
+      betType: "bBet",
     });
     const res = mockResponse();
 
     await handleBetRequest(req, res);
 
+    // The validation should fail on the individual bet's betType, not the top-level betType
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({
       success: false,
-      message: '"betType" must be one of [bBet, cBet, dBet, eBet, fBet, gBet, EXACTA]',
+      message: '"bets[0].betType" must be one of [WIN, PLACE, SHOW, EXACTA]',
     });
   });
 
@@ -62,7 +63,7 @@ describe("Bet Controller", () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       success: false,
-      message: "Error generating bet file.",
+      message: "Error generating bet file: File generation error",
     });
   });
 
@@ -83,12 +84,32 @@ describe("Bet Controller", () => {
       "ABC", // trackCode
       "bBet", // betType
       1, // raceNumber
-      "./bets-bBet-12345.xlsx" // filePath
+      "./bets-bBet-12345.xlsx", // filePath
+      bets // bets array
     );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       success: true,
       result: { success: true },
+    });
+  });
+
+  it("should handle errors during bet submission", async () => {
+    const bets = [
+      { trackCode: "ABC", raceNumber: 1, horseNumber: 5, betAmount: `100.00`, betType: "WIN" },
+    ];
+    const req = mockRequest({ bets, betType: "bBet" });
+    const res = mockResponse();
+
+    (createBetCsv as jest.Mock).mockReturnValue("./bets-bBet-12345.xlsx");
+    (placeBet as jest.Mock).mockRejectedValue(new Error("Xpressbet API error"));
+
+    await handleBetRequest(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      message: "Error submitting bet file to Xpressbet: Xpressbet API error",
     });
   });
 });

@@ -12,14 +12,9 @@
  * Database initialization and connection management utilities
  */
 
-import { readFileSync } from "fs";
-import { join } from "path";
-import { fileURLToPath } from "url";
+import { runMigrations, getMigrationStatus } from "./migrationManager";
 import pool from "../config/database";
 import logger from "../config/logger";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = join(__filename, "..");
 
 /**
  * Initialize the database with the required schema
@@ -28,12 +23,8 @@ export async function initializeDatabase(): Promise<void> {
 	try {
 		logger.info("Starting database initialization...");
 
-		// Read the migration file
-		const migrationPath = join(__dirname, "../../migrations/001_create_race_tables.sql");
-		const migrationSQL = readFileSync(migrationPath, "utf-8");
-
-		// Execute the migration
-		await pool.query(migrationSQL);
+		// Run migrations using the new migration system
+		await runMigrations();
 
 		logger.info("Database initialization completed successfully");
 	} catch (error: any) {
