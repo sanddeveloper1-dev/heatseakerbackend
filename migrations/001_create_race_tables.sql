@@ -72,8 +72,13 @@ CREATE TABLE IF NOT EXISTS race_entries (
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_races_track_date ON races(track_id, date);
 CREATE INDEX IF NOT EXISTS idx_races_date ON races(date);
+CREATE INDEX IF NOT EXISTS idx_races_race_number ON races(race_number);
+CREATE INDEX IF NOT EXISTS idx_races_track_date_race ON races(track_id, date, race_number);
 CREATE INDEX IF NOT EXISTS idx_race_entries_race_id ON race_entries(race_id);
+CREATE INDEX IF NOT EXISTS idx_race_entries_horse_number ON race_entries(horse_number);
+CREATE INDEX IF NOT EXISTS idx_race_entries_race_horse ON race_entries(race_id, horse_number);
 CREATE INDEX IF NOT EXISTS idx_tracks_code ON tracks(code);
+CREATE INDEX IF NOT EXISTS idx_tracks_name ON tracks(name);
 
 -- Create trigger to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()

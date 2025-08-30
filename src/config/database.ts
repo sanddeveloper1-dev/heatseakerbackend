@@ -26,7 +26,8 @@ pool.on("connect", (client: PoolClient) => {
 
 pool.on("error", (err: Error) => {
 	logger.error("Unexpected error on idle client", err);
-	process.exit(-1);
+	// Don't crash the application on connection errors
+	// Let the application handle reconnection logic
 });
 
 // Graceful shutdown
@@ -35,5 +36,17 @@ process.on("SIGINT", async () => {
 	await pool.end();
 	process.exit(0);
 });
+
+// Add connection health check method
+export const checkConnectionHealth = async (): Promise<boolean> => {
+	try {
+		const client = await pool.connect();
+		client.release();
+		return true;
+	} catch (error) {
+		logger.error("Database connection health check failed", { error });
+		return false;
+	}
+};
 
 export default pool; 

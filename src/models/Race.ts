@@ -14,6 +14,7 @@
 
 import pool from "../config/database";
 import logger from "../config/logger";
+import { DatabaseClient } from "../types/raceTypes";
 
 export interface Race {
 	id?: string;
@@ -69,6 +70,29 @@ export class RaceModel {
 	}
 
 	/**
+	 * Find a race by track, date, and race number with database client (for transactions)
+	 */
+	static async findByTrackDateRaceWithClient(
+		client: DatabaseClient,
+		trackId: number,
+		date: Date,
+		raceNumber: number
+	): Promise<Race | null> {
+		try {
+			const result = await client.query(
+				"SELECT * FROM races WHERE track_id = $1 AND date = $2 AND race_number = $3",
+				[trackId, date, raceNumber]
+			);
+			return result.rows[0] || null;
+		} catch (error) {
+			logger.error("Error finding race by track/date/race with client", {
+				trackId, date, raceNumber, error
+			});
+			throw error;
+		}
+	}
+
+	/**
 	 * Create a new race
 	 */
 	static async create(race: Race): Promise<Race> {
@@ -96,6 +120,38 @@ export class RaceModel {
 			return result.rows[0];
 		} catch (error) {
 			logger.error("Error creating race", { race, error });
+			throw error;
+		}
+	}
+
+	/**
+	 * Create a new race with database client (for transactions)
+	 */
+	static async createWithClient(client: DatabaseClient, race: Race): Promise<Race> {
+		try {
+			const result = await client.query(
+				`INSERT INTO races (
+          id, track_id, date, race_number, 
+          prev_race_1_winner_horse_number, prev_race_1_winner_payout,
+          prev_race_2_winner_horse_number, prev_race_2_winner_payout,
+          source_file
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+        RETURNING *`,
+				[
+					race.id,
+					race.track_id,
+					race.date,
+					race.race_number,
+					race.prev_race_1_winner_horse_number,
+					race.prev_race_1_winner_payout,
+					race.prev_race_2_winner_horse_number,
+					race.prev_race_2_winner_payout,
+					race.source_file,
+				]
+			);
+			return result.rows[0];
+		} catch (error) {
+			logger.error("Error creating race with client", { race, error });
 			throw error;
 		}
 	}
@@ -133,6 +189,38 @@ export class RaceModel {
 	}
 
 	/**
+	 * Update an existing race with database client (for transactions)
+	 */
+	static async updateWithClient(client: DatabaseClient, race: Race): Promise<Race> {
+		try {
+			const result = await client.query(
+				`UPDATE races SET 
+          track_id = $2, date = $3, race_number = $4,
+          prev_race_1_winner_horse_number = $5, prev_race_1_winner_payout = $6,
+          prev_race_2_winner_horse_number = $7, prev_race_2_winner_payout = $8,
+          source_file = $9, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $1 
+        RETURNING *`,
+				[
+					race.id,
+					race.track_id,
+					race.date,
+					race.race_number,
+					race.prev_race_1_winner_horse_number,
+					race.prev_race_1_winner_payout,
+					race.prev_race_2_winner_horse_number,
+					race.prev_race_2_winner_payout,
+					race.source_file,
+				]
+			);
+			return result.rows[0];
+		} catch (error) {
+			logger.error("Error updating race with client", { race, error });
+			throw error;
+		}
+	}
+
+	/**
 	 * Upsert a race (insert or update)
 	 */
 	static async upsert(race: Race): Promise<Race> {
@@ -153,6 +241,32 @@ export class RaceModel {
 			}
 		} catch (error) {
 			logger.error("Error in upsert race", { race, error });
+			throw error;
+		}
+	}
+
+	/**
+	 * Upsert a race with database client (for transactions)
+	 */
+	static async upsertWithClient(client: DatabaseClient, race: Race): Promise<Race> {
+		try {
+			const existingRace = await this.findByTrackDateRaceWithClient(
+				client,
+				race.track_id,
+				race.date,
+				race.race_number
+			);
+
+			if (existingRace) {
+				// Update existing race
+				race.id = existingRace.id;
+				return await this.updateWithClient(client, race);
+			} else {
+				// Create new race
+				return await this.createWithClient(client, race);
+			}
+		} catch (error) {
+			logger.error("Error in upsertWithClient race", { race, error });
 			throw error;
 		}
 	}

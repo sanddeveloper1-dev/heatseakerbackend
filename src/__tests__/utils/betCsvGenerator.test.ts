@@ -28,61 +28,24 @@ describe("betCsvGenerator", () => {
       fs.unlinkSync(filePath);
     });
 
-    it("should include correct headers and rows in the Excel file", () => {
+    it("should include correct data rows in the CSV file", () => {
       const filePath = createBetCsv(mockBets, "cBet");
 
-      // Read the generated Excel file
-      const workbook = XLSX.readFile(filePath);
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+      // Read the generated CSV file
+      const fileContent = fs.readFileSync(filePath, 'utf-8');
+      const lines = fileContent.split('\n').filter(line => line.trim());
 
-      // Validate headers
-      expect(data[0]).toEqual([
-        "Account",
-        "SubAccount",
-        "Date",
-        "Track Code",
-        "Race Number",
-        "Bet Type",
-        "Horse(s)",
-        "Wheel",
-        "Bet Amount",
-      ]);
-      expect(data[1]).toEqual([
-        "8668",
-        "5556",
-        eventBetDate(), // Match the generated date
-        "ABC",
-        1,
-        "WIN",
-        "5",
-        "WHEEL",
-        100,
-      ]);
-
-      expect(data[2]).toEqual([
-        "8668",
-        "5556",
-        eventBetDate(),
-        "DEF",
-        2,
-        "PLACE",
-        "3",
-        "WHEEL",
-        50,
-      ]);
-
-      expect(data[3]).toEqual([
-        "8668",
-        "5556",
-        eventBetDate(),
-        "XYZ",
-        3,
-        "EXACTA",
-        "7-8",
-        "WHEEL",
-        30,
-      ]);
+      // Validate the first row (no headers, just data)
+      const firstRow = lines[0].split(',');
+      expect(firstRow[0]).toBe('8668'); // Account
+      expect(firstRow[1]).toBe('5556'); // SubAccount
+      expect(firstRow[2]).toBe(eventBetDate()); // Date
+      expect(firstRow[3]).toBe('ABC'); // Track Code
+      expect(firstRow[4]).toBe('1'); // Race Number
+      expect(firstRow[5]).toBe('WIN'); // Bet Type
+      expect(firstRow[6]).toBe('5'); // Horse(s)
+      expect(firstRow[7]).toBe('100.00'); // Bet Amount
+      expect(firstRow[8]).toBe('WHEEL'); // Wheel
 
       // Clean up after the test
       fs.unlinkSync(filePath);

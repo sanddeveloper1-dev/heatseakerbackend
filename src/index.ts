@@ -43,6 +43,38 @@ app.get("/health", (req, res) => {
 	});
 });
 
+// Add database health check route
+app.get("/health/db", async (req, res) => {
+	try {
+		const { checkConnectionHealth } = await import("./config/database");
+		const isHealthy = await checkConnectionHealth();
+
+		if (isHealthy) {
+			res.status(200).json({
+				status: "UP",
+				message: "Database connection is healthy",
+				timestamp: new Date().toISOString(),
+				version: APP_VERSION,
+			});
+		} else {
+			res.status(503).json({
+				status: "DOWN",
+				message: "Database connection is unhealthy",
+				timestamp: new Date().toISOString(),
+				version: APP_VERSION,
+			});
+		}
+	} catch (error: any) {
+		res.status(503).json({
+			status: "ERROR",
+			message: "Database health check failed",
+			error: error.message,
+			timestamp: new Date().toISOString(),
+			version: APP_VERSION,
+		});
+	}
+});
+
 // Mount routes
 app.use("/api", betRoutes);
 app.use("/api/races", raceRoutes);
