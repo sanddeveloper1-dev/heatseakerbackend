@@ -1,3 +1,17 @@
+/**
+ * HeatSeaker Backend - Commercial Software
+ * Copyright (c) 2024 Paul Stortini
+ * Software Development & Maintenance by Alexander Meyer
+ * 
+ * ZERO LIABILITY NOTICE: Service provider assumes no liability for betting operations.
+ * Client bears 100% responsibility for all business outcomes.
+ * 
+ * This software is provided "AS IS" without warranty.
+ * For complete terms, see SERVICE_AGREEMENT.md
+ * 
+ * XpressBet integration service for betting operations
+ */
+
 import axios from "axios";
 import * as cheerio from "cheerio"
 import * as fs from "fs";

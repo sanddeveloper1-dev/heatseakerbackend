@@ -1,21 +1,56 @@
-MIT License
+COMMERCIAL SOFTWARE LICENSE AGREEMENT
 
-Copyright (c) 2025 alexmeyer27
+Copyright (c) 2024 Paul Stortini
+Software Development & Maintenance by Alexander Meyer
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This is NOT open source software. This software is provided under a commercial license agreement.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. LICENSE GRANT
+Subject to the terms and conditions of this Agreement, Paul Stortini ("Client") grants to the Service Provider a limited, non-exclusive, non-transferable license to use, modify, and maintain the Software solely for the purpose of providing ongoing development and maintenance services to Client.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+2. RESTRICTIONS
+The Service Provider may not:
+- Redistribute, sublicense, or transfer the Software to any third party
+- Reverse engineer, decompile, or disassemble the Software without prior written permission
+- Use the Software for any purpose other than providing services to Client
+- Remove or modify any proprietary notices or labels on the Software
+
+3. OWNERSHIP
+The Software and all intellectual property rights therein remain the exclusive property of Client. This Agreement does not transfer ownership of the Software to Service Provider.
+
+4. ZERO BETTING LIABILITY
+Service Provider provides software and integration services only. No financial, legal, or betting advice is provided. Client has exclusive control and responsibility for all betting operations, decisions, and regulatory compliance.
+
+Service Provider assumes ZERO liability for:
+- Any betting operations, decisions, or outcomes
+- Financial losses, regulatory violations, or business operations
+- Any consequences arising from the use of this software for betting purposes
+- Any business decisions made by Client or Client's users
+
+Client bears 100% responsibility for all betting decisions, outcomes, and business operations.
+
+5. LIMITATION OF LIABILITY
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, NEITHER PARTY SHALL BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, COVER, EXEMPLARY, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS, REVENUE, GOODWILL, OR DATA, EVEN IF ADVISED OF THE POSSIBILITY. EXCEPT FOR THE CARVE-OUTS, EACH PARTY'S AGGREGATE LIABILITY ARISING OUT OF OR RELATED TO THIS AGREEMENT SHALL NOT EXCEED the fees paid (or payable) by Client to Service Provider for the Services giving rise to the claim in the twelve (12) months immediately preceding the event giving rise to liability. THE FOREGOING LIMITATIONS APPLY TO ALL CAUSES OF ACTION, WHETHER IN CONTRACT, TORT (INCLUDING NEGLIGENCE), STRICT LIABILITY, OR OTHERWISE.
+
+Carve-Outs. The foregoing limitations do not apply to (i) Client's breach of payment obligations; (ii) either party's willful misconduct or fraud; (iii) infringement of the other party's intellectual property rights; and (iv) breach of confidentiality obligations.
+
+6. INDEMNIFICATION
+Client agrees to indemnify, defend, and hold harmless Service Provider from and against any claims, damages, losses, or expenses arising out of or related to Client's use of the Software for betting operations, business decisions, or any other business activities.
+
+7. WARRANTY DISCLAIMER
+THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+
+8. TERM AND TERMINATION
+This Agreement shall remain in effect for the duration of the service relationship between Client and Service Provider. Upon termination of services, Service Provider shall cease all use of the Software and return or destroy all copies.
+
+9. GOVERNING LAW
+This Agreement shall be governed by and construed in accordance with the laws of [JURISDICTION], without regard to its conflict of law principles.
+
+10. ENTIRE AGREEMENT
+This Agreement constitutes the entire agreement between the parties concerning the subject matter hereof and supersedes all prior agreements, whether written or oral.
+
+For complete terms and conditions, see SERVICE_AGREEMENT.md
+
+[CLIENT_ORG_NAME]: Paul Stortini
+[SERVICE_PROVIDER_EMAIL]: alexmeyer@gmail.com
+[JURISDICTION]: Colorado

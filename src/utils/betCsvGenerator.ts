@@ -1,10 +1,24 @@
+/**
+ * HeatSeaker Backend - Commercial Software
+ * Copyright (c) 2024 Paul Stortini
+ * Software Development & Maintenance by Alexander Meyer
+ * 
+ * ZERO LIABILITY NOTICE: Service provider assumes no liability for betting operations.
+ * Client bears 100% responsibility for all business outcomes.
+ * 
+ * This software is provided "AS IS" without warranty.
+ * For complete terms, see SERVICE_AGREEMENT.md
+ * 
+ * Bet CSV generator utility for XpressBet integration
+ */
+
 import * as XLSX from "xlsx";
 import * as fs from "fs";
 
 interface BetDetail {
   trackCode: string;
   raceNumber: number;
-  horseNumber: number | string;
+  horseNumber?: number | string; // Optional when betCombination is present
   exactaHorseNumbers?: string; // Supports multiple horses in Exacta
   betAmount: string;
   comboType?: string; // For Box, Key, or Wheel bets

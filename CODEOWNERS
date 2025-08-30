@@ -1,0 +1,155 @@
+# CODEOWNERS
+
+**Code ownership and review requirements for HeatSeaker Backend System**
+
+## Repository Ownership
+
+**⚠️ IMPORTANT: This repository is maintained under a contractor/consultant relationship.**
+
+- **Client Organization**: Paul Stortini - Repository ownership and business control
+- **Service Provider**: Alexander Meyer - Technical development and maintenance
+- **Technical Lead**: sanddeveloper1@gmail.com - Technical decisions and architecture
+- **Operations Team**: Paul Stortini - Operational procedures and business decisions
+
+## File Ownership
+
+### Core System Files
+* @sanddeveloper1 @alexandermeyer
+*.ts
+*.js
+*.json
+*.md
+*.sql
+
+### Configuration Files
+* @sanddeveloper1 @alexandermeyer
+src/config/
+package.json
+tsconfig.json
+jest.config.cjs
+dockerfile
+Dockerrun.aws.json
+
+### Documentation
+* @sanddeveloper1 @alexandermeyer
+*.md
+docs/
+*.txt
+migrations/
+
+### Security & Compliance
+* @[CLIENT_SECURITY_TEAM] @[CLIENT_LEGAL_TEAM]
+SECURITY.md
+COMPLIANCE.md
+SERVICE_AGREEMENT.md
+LICENSE
+NOTICE
+
+### Operations & Procedures
+* @PaulStortini @sanddeveloper1
+MIGRATION_CHECKLIST.md
+ARCHITECTURE.md
+
+### Contributing & Development
+* @PaulStortini @alexandermeyer
+CONTRIBUTING.md
+PULL_REQUEST_TEMPLATE.md
+.github/
+
+## Review Requirements
+
+### All Changes
+- **Primary Review**: sanddeveloper1@gmail.com
+- **Secondary Review**: Paul Stortini (if operational impact)
+
+### Runtime Logic Changes
+- **Primary Review**: sanddeveloper1@gmail.com
+- **Secondary Review**: @alexandermeyer (service provider)
+- **Security Review**: Paul Stortini
+- **Performance Review**: Paul Stortini
+
+### Security Changes
+- **Primary Review**: Paul Stortini
+- **Secondary Review**: sanddeveloper1@gmail.com
+- **Legal Review**: Paul Stortini (if required)
+
+### Documentation Changes
+- **Primary Review**: Paul Stortini
+- **Secondary Review**: sanddeveloper1@gmail.com
+- **Service Provider Review**: @alexandermeyer (if technical content)
+
+### Configuration Changes
+- **Primary Review**: Paul Stortini
+- **Secondary Review**: sanddeveloper1@gmail.com
+- **Service Provider Review**: @alexandermeyer (if technical impact)
+- **Security Review**: Paul Stortini
+
+## Contact Information
+
+### Primary Contacts
+- **Technical Lead**: sanddeveloper1@gmail.com
+- **Operations Team**: Paul Stortini
+- **Security Team**: Paul Stortini
+- **Development Team**: Paul Stortini
+
+### Service Provider Contact
+- **Alexander Meyer**: alexmeyer@gmail.com - Technical development and maintenance
+
+### Escalation Contacts
+- **Project Manager**: Paul Stortini
+- **CTO/Technical Director**: Paul Stortini
+- **Legal Team**: Paul Stortini
+
+## Review Guidelines
+
+### Code Review Standards
+- **All changes** require at least one review
+- **Runtime changes** require two reviews (client + service provider)
+- **Security changes** require security team review
+- **Performance changes** require performance review
+
+### Documentation Review Standards
+- **Accuracy and completeness**
+- **Clarity and readability**
+- **Consistency with existing docs**
+- **Proper formatting and structure**
+
+### Configuration Review Standards
+- **Correctness of values**
+- **Security implications**
+- **Operational impact**
+- **Documentation updates**
+
+## Contractor Relationship
+
+### Current Status
+- **Repository Owner**: Paul Stortini
+- **Primary Maintainer**: sanddeveloper1@gmail.com
+- **Service Provider**: Alexander Meyer (ongoing development)
+- **Operational Control**: Paul Stortini
+
+### Service Provider Role
+- **Technical Development**: New features and improvements
+- **System Maintenance**: Bug fixes and updates
+- **Technical Support**: Troubleshooting and integration
+- **Architecture Guidance**: Technical decisions and design
+
+### Client Responsibilities
+- **Business Decisions**: All betting and financial decisions
+- **Operational Control**: System operation and user management
+- **Regulatory Compliance**: Gambling laws and financial regulations
+- **Risk Management**: Financial and operational risk decisions
+
+### Zero Betting Liability
+- **Service Provider**: ZERO liability for betting operations
+- **Client**: 100% responsibility for all business outcomes
+- **Liability Separation**: Clearly defined in SERVICE_AGREEMENT.md
+
+---
+
+**⚠️ REMINDER: This repository operates under a contractor relationship with zero betting liability.**
+
+**For technical development and maintenance, contact the service provider (Alexander Meyer).**
+**For business operations and betting decisions, contact your internal team.**
+
+**See SERVICE_AGREEMENT.md for complete liability framework and relationship terms.**
