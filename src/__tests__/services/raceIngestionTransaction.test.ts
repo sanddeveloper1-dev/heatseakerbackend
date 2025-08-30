@@ -149,7 +149,7 @@ describe("Race Ingestion Service Transaction Support", () => {
 						// Upsert race
 						const raceRecord = await RaceModel.upsertWithClient(client, {
 							id: raceId,
-							track_id: track.id,
+							track_id: track.id!,
 							date: new Date(race.date),
 							race_number: race.raceNumber,
 							source_file: source,
@@ -157,7 +157,7 @@ describe("Race Ingestion Service Transaction Support", () => {
 
 						// Process race entries
 						if (race.entries && race.entries.length > 0) {
-							const entries = race.entries.map(entry => ({
+							const entries = race.entries.map((entry: any) => ({
 								race_id: raceRecord.id,
 								horse_number: entry.horseNumber,
 								double: entry.double,
@@ -273,7 +273,7 @@ describe("Race Ingestion Service Transaction Support", () => {
 						// Upsert race (should fail)
 						await RaceModel.upsertWithClient(client, {
 							id: raceId,
-							track_id: track.id,
+							track_id: track.id!,
 							date: new Date(race.date),
 							race_number: race.raceNumber,
 							source_file: source,
@@ -357,14 +357,14 @@ describe("Race Ingestion Service Transaction Support", () => {
 
 						const raceRecord = await RaceModel.upsertWithClient(client, {
 							id: raceId,
-							track_id: track.id,
+							track_id: track.id!,
 							date: new Date(race.date),
 							race_number: race.raceNumber,
 							source_file: source,
 						});
 
 						if (race.entries && race.entries.length > 0) {
-							const entries = race.entries.map(entry => ({
+							const entries = race.entries.map((entry: any) => ({
 								race_id: raceRecord.id,
 								horse_number: entry.horseNumber,
 								double: entry.double,
@@ -511,14 +511,14 @@ describe("Race Ingestion Service Transaction Support", () => {
 
 						const raceRecord = await RaceModel.upsertWithClient(client, {
 							id: raceId,
-							track_id: track.id,
+							track_id: track.id!,
 							date: new Date(race.date),
 							race_number: race.raceNumber,
 							source_file: source,
 						});
 
 						if (race.entries && race.entries.length > 0) {
-							const entries = race.entries.map(entry => ({
+							const entries = race.entries.map((entry: any) => ({
 								race_id: raceRecord.id,
 								horse_number: entry.horseNumber,
 								double: entry.double,
@@ -551,7 +551,7 @@ describe("Race Ingestion Service Transaction Support", () => {
 
 			// Verify all races were processed
 			expect(results).toHaveLength(10);
-			expect(results.every(r => r.success)).toBe(true);
+			expect(results.every((r: any) => r.success)).toBe(true);
 
 			// Verify performance (should be reasonable for 10 races)
 			const processingTime = endTime - startTime;

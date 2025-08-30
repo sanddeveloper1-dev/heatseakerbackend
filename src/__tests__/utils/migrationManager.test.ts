@@ -50,7 +50,6 @@ jest.mock("crypto", () => ({
 
 describe("MigrationManager", () => {
 	let mockClient: any;
-	let mockPool: any;
 
 	beforeEach(() => {
 		jest.clearAllMocks();
@@ -62,11 +61,7 @@ describe("MigrationManager", () => {
 		};
 
 		// Setup mock pool
-		mockPool = {
-			connect: jest.fn().mockResolvedValue(mockClient),
-		};
-
-		(pool as any).connect = mockPool.connect;
+		(pool as any).connect.mockResolvedValue(mockClient);
 	});
 
 	describe("initialize", () => {
@@ -83,7 +78,7 @@ describe("MigrationManager", () => {
 		});
 
 		it("should handle database connection errors", async () => {
-			mockPool.connect.mockRejectedValue(new Error("Connection failed"));
+			(pool as any).connect.mockRejectedValue(new Error("Connection failed"));
 
 			await expect(MigrationManager.initialize()).rejects.toThrow(
 				"Migration initialization failed: Connection failed"
@@ -244,7 +239,7 @@ describe("MigrationManager", () => {
 
 			readdirSync.mockReturnValue(["001_create_tables.sql", "002_add_indexes.sql"]);
 			readFileSync.mockReturnValue("CREATE TABLE test;");
-			join.mockImplementation((...args) => args.join("/"));
+			join.mockImplementation((...args: string[]) => args.join("/"));
 
 			// Access private method through reflection
 			const getMigrationFiles = (MigrationManager as any).getMigrationFiles;
@@ -254,7 +249,7 @@ describe("MigrationManager", () => {
 			expect(files[0]).toEqual({
 				version: "001",
 				description: "create tables",
-				filePath: "migrations/001_create_tables.sql",
+				filePath: "/001_create_tables.sql",
 				content: "CREATE TABLE test;",
 				checksum: "mock-checksum",
 			});

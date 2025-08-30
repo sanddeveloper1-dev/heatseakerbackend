@@ -322,6 +322,7 @@ describe("Transaction Support in Models", () => {
 				await RaceModel.upsertWithClient(client, {
 					id: "AQU_20250427_03",
 					track_id: track.id!,
+					date: new Date("2025-04-27"),
 					race_number: 3,
 				});
 

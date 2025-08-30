@@ -12,7 +12,7 @@
  * Database initialization and connection management utilities
  */
 
-import { runMigrations, getMigrationStatus } from "./migrationManager";
+import { MigrationManager } from "./migrationManager";
 import pool from "../config/database";
 import logger from "../config/logger";
 
@@ -24,7 +24,7 @@ export async function initializeDatabase(): Promise<void> {
 		logger.info("Starting database initialization...");
 
 		// Run migrations using the new migration system
-		await runMigrations();
+		await MigrationManager.runMigrations();
 
 		logger.info("Database initialization completed successfully");
 	} catch (error: any) {
