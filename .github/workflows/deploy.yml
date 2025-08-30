@@ -25,6 +25,10 @@ jobs:
         run: |
           echo "API_KEY=${{ secrets.API_KEY }}" > .env
           echo "PORT=8080" >> .env
+          echo "NODE_ENV=production" >> .env
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+          echo "DB_SSL_REJECT_UNAUTHORIZED=${{ secrets.DB_SSL_REJECT_UNAUTHORIZED }}" >> .env
+          echo "LOG_LEVEL=${{ secrets.LOG_LEVEL }}" >> .env
 
       # - name: Run Tests
       #   run: yarn test
