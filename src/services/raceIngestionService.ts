@@ -176,18 +176,7 @@ export class RaceIngestionService {
 				track_id: track.id!,
 				date: new Date(normalizedDate),
 				race_number: raceNumber,
-				prev_race_1_winner_horse_number: raceData.prev_race_1_winner_horse_number
-					? parseInt(String(raceData.prev_race_1_winner_horse_number))
-					: undefined,
-				prev_race_1_winner_payout: raceData.prev_race_1_winner_payout
-					? parseFloat(String(raceData.prev_race_1_winner_payout))
-					: undefined,
-				prev_race_2_winner_horse_number: raceData.prev_race_2_winner_horse_number
-					? parseInt(String(raceData.prev_race_2_winner_horse_number))
-					: undefined,
-				prev_race_2_winner_payout: raceData.prev_race_2_winner_payout
-					? parseFloat(String(raceData.prev_race_2_winner_payout))
-					: undefined,
+				post_time: raceData.post_time || undefined,
 				source_file: source
 			};
 
@@ -197,10 +186,10 @@ export class RaceIngestionService {
 			// Process entries
 			const validEntries = raceData.entries.filter(validateRaceEntry);
 
-			if (validEntries.length < 3) {
+			if (validEntries.length < 1) {
 				return {
 					success: false,
-					error: `Race must have at least 3 valid entries, got: ${validEntries.length}`
+					error: `Race must have at least 1 valid entry, got: ${validEntries.length}`
 				};
 			}
 
