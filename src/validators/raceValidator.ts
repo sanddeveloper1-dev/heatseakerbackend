@@ -30,7 +30,8 @@ export const raceEntrySchema = Joi.object({
 		Joi.number(),
 		Joi.string().allow('', null)
 	),
-	p3: Joi.alternatives().try(
+	p3: Joi.string().allow('', null, 'FALSE'),
+	correct_p3: Joi.alternatives().try(
 		Joi.number(),
 		Joi.string().allow('', null)
 	),
@@ -60,6 +61,7 @@ export const raceEntrySchema = Joi.object({
 		Joi.string().allow('', null)
 	),
 	will_pay_2: Joi.string().allow('', null),
+	will_pay: Joi.string().allow('', null),
 	will_pay_1_p3: Joi.string().allow('', null),
 	win_pool: Joi.string().allow('', null),
 	veto_rating: Joi.string().allow('', null),
@@ -74,33 +76,17 @@ export const raceSchema = Joi.object({
 	track: Joi.string().required(),
 	date: Joi.string().pattern(/^\d{1,2}-\d{1,2}-\d{2}$/).required(),
 	race_number: Joi.alternatives().try(
-		Joi.number().integer().min(3).max(15),
+		Joi.number().integer().min(1).max(15),
 		Joi.string().pattern(/^\d+$/).custom((value, helpers) => {
 			const num = parseInt(value);
-			if (num < 3 || num > 15) {
+			if (num < 1 || num > 15) {
 				return helpers.error('any.invalid');
 			}
 			return value;
 		})
 	).required(),
 	post_time: Joi.string().allow('', null),
-	prev_race_1_winner_horse_number: Joi.alternatives().try(
-		Joi.number().integer().min(1).max(16),
-		Joi.string().pattern(/^\d+$/).allow('', null)
-	),
-	prev_race_1_winner_payout: Joi.alternatives().try(
-		Joi.number().positive(),
-		Joi.string().pattern(/^\d+\.?\d*$/).allow('', null)
-	),
-	prev_race_2_winner_horse_number: Joi.alternatives().try(
-		Joi.number().integer().min(1).max(16),
-		Joi.string().pattern(/^\d+$/).allow('', null)
-	),
-	prev_race_2_winner_payout: Joi.alternatives().try(
-		Joi.number().positive(),
-		Joi.string().pattern(/^\d+\.?\d*$/).allow('', null)
-	),
-	entries: Joi.array().items(raceEntrySchema).min(3).required()
+	entries: Joi.array().items(raceEntrySchema).min(1).required()
 });
 
 /**
