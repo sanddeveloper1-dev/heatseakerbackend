@@ -21,10 +21,7 @@ export interface Race {
 	track_id: number;
 	date: Date;
 	race_number: number;
-	prev_race_1_winner_horse_number?: number;
-	prev_race_1_winner_payout?: number;
-	prev_race_2_winner_horse_number?: number;
-	prev_race_2_winner_payout?: number;
+	post_time?: string;  // New field for race post time
 	source_file?: string;
 	created_at?: Date;
 	updated_at?: Date;
@@ -99,21 +96,15 @@ export class RaceModel {
 		try {
 			const result = await pool.query(
 				`INSERT INTO races (
-          id, track_id, date, race_number, 
-          prev_race_1_winner_horse_number, prev_race_1_winner_payout,
-          prev_race_2_winner_horse_number, prev_race_2_winner_payout,
-          source_file
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+          id, track_id, date, race_number, post_time, source_file
+        ) VALUES ($1, $2, $3, $4, $5, $6) 
         RETURNING *`,
 				[
 					race.id,
 					race.track_id,
 					race.date,
 					race.race_number,
-					race.prev_race_1_winner_horse_number,
-					race.prev_race_1_winner_payout,
-					race.prev_race_2_winner_horse_number,
-					race.prev_race_2_winner_payout,
+					race.post_time,
 					race.source_file,
 				]
 			);
@@ -131,21 +122,15 @@ export class RaceModel {
 		try {
 			const result = await client.query(
 				`INSERT INTO races (
-          id, track_id, date, race_number, 
-          prev_race_1_winner_horse_number, prev_race_1_winner_payout,
-          prev_race_2_winner_horse_number, prev_race_2_winner_payout,
-          source_file
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+          id, track_id, date, race_number, post_time, source_file
+        ) VALUES ($1, $2, $3, $4, $5, $6) 
         RETURNING *`,
 				[
 					race.id,
 					race.track_id,
 					race.date,
 					race.race_number,
-					race.prev_race_1_winner_horse_number,
-					race.prev_race_1_winner_payout,
-					race.prev_race_2_winner_horse_number,
-					race.prev_race_2_winner_payout,
+					race.post_time,
 					race.source_file,
 				]
 			);
@@ -163,10 +148,8 @@ export class RaceModel {
 		try {
 			const result = await pool.query(
 				`UPDATE races SET 
-          track_id = $2, date = $3, race_number = $4,
-          prev_race_1_winner_horse_number = $5, prev_race_1_winner_payout = $6,
-          prev_race_2_winner_horse_number = $7, prev_race_2_winner_payout = $8,
-          source_file = $9, updated_at = CURRENT_TIMESTAMP
+          track_id = $2, date = $3, race_number = $4, post_time = $5,
+          source_file = $6, updated_at = CURRENT_TIMESTAMP
         WHERE id = $1 
         RETURNING *`,
 				[
@@ -174,10 +157,7 @@ export class RaceModel {
 					race.track_id,
 					race.date,
 					race.race_number,
-					race.prev_race_1_winner_horse_number,
-					race.prev_race_1_winner_payout,
-					race.prev_race_2_winner_horse_number,
-					race.prev_race_2_winner_payout,
+					race.post_time,
 					race.source_file,
 				]
 			);
@@ -195,10 +175,8 @@ export class RaceModel {
 		try {
 			const result = await client.query(
 				`UPDATE races SET 
-          track_id = $2, date = $3, race_number = $4,
-          prev_race_1_winner_horse_number = $5, prev_race_1_winner_payout = $6,
-          prev_race_2_winner_horse_number = $7, prev_race_2_winner_payout = $8,
-          source_file = $9, updated_at = CURRENT_TIMESTAMP
+          track_id = $2, date = $3, race_number = $4, post_time = $5,
+          source_file = $6, updated_at = CURRENT_TIMESTAMP
         WHERE id = $1 
         RETURNING *`,
 				[
@@ -206,10 +184,7 @@ export class RaceModel {
 					race.track_id,
 					race.date,
 					race.race_number,
-					race.prev_race_1_winner_horse_number,
-					race.prev_race_1_winner_payout,
-					race.prev_race_2_winner_horse_number,
-					race.prev_race_2_winner_payout,
+					race.post_time,
 					race.source_file,
 				]
 			);

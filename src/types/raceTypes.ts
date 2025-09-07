@@ -16,7 +16,8 @@ export interface RaceEntryData {
 	horse_number: number | string;
 	double?: number | string;
 	constant?: number | string;
-	p3?: number | string;
+	p3?: string;  // Changed to string to handle 'FALSE' values
+	correct_p3?: number | string;  // New field
 	ml?: number | string;
 	live_odds?: number | string;
 	sharp_percent?: string;
@@ -25,6 +26,7 @@ export interface RaceEntryData {
 	p3_delta?: number | string;
 	x_figure?: number | string;
 	will_pay_2?: string;
+	will_pay?: string;  // New field
 	will_pay_1_p3?: string;
 	win_pool?: string;
 	veto_rating?: string;
@@ -37,10 +39,6 @@ export interface RaceData {
 	date: string;
 	race_number: string | number;
 	post_time?: string;
-	prev_race_1_winner_horse_number?: number | string;
-	prev_race_1_winner_payout?: number | string;
-	prev_race_2_winner_horse_number?: number | string;
-	prev_race_2_winner_payout?: number | string;
 	entries: RaceEntryData[];
 }
 

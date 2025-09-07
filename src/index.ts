@@ -20,7 +20,7 @@ import logger from "./config/logger";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { fileURLToPath } from "url";
-import { initializeDatabase, testDatabaseConnection } from "./utils/dbInit";
+import { checkConnectionHealth } from "./config/database";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = join(__filename, "..");
@@ -86,14 +86,13 @@ export { app };
 async function startServer() {
 	try {
 		// Test database connection
-		const dbConnected = await testDatabaseConnection();
+		const dbConnected = await checkConnectionHealth();
 		if (!dbConnected) {
 			logger.error("Failed to connect to database. Exiting...");
 			process.exit(1);
 		}
 
-		// Initialize database schema
-		await initializeDatabase();
+		logger.info("Database connection verified successfully");
 
 		// Start the server
 		const PORT = config.port;

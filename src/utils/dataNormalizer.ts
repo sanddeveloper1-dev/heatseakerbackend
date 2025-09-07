@@ -75,7 +75,7 @@ export function normalizeNumeric(value: any): number | null {
 		const cleaned = value.replace(/[$,\s]/g, '');
 
 		// Check for invalid values
-		if (['SC', 'N/A', '#VALUE!', '#DIV/0!'].includes(cleaned.toUpperCase())) {
+		if (['SC', 'N/A', '#VALUE!', '#DIV/0!', 'FALSE', ''].includes(cleaned.toUpperCase())) {
 			return null;
 		}
 
@@ -98,14 +98,14 @@ export function validateHorseNumber(horseNumber: any): number | null {
 }
 
 /**
- * Validate race number (must be 3-15)
+ * Validate race number (must be 1-15)
  */
 export function validateRaceNumber(raceNumber: any): number | null {
 	const num = normalizeNumeric(raceNumber);
 	if (num === null) return null;
 
-	// Race numbers should be between 3 and 15
-	return (num >= 3 && num <= 15) ? Math.floor(num) : null;
+	// Race numbers should be between 1 and 15
+	return (num >= 1 && num <= 15) ? Math.floor(num) : null;
 }
 
 /**
@@ -147,6 +147,33 @@ export function normalizeCurrency(value: any): string | null {
 }
 
 /**
+ * Normalize p3 field (can be 'FALSE' or numeric)
+ */
+export function normalizeP3(value: any): string | null {
+	if (value === null || value === undefined || value === '') {
+		return null;
+	}
+
+	if (typeof value === 'string') {
+		const cleaned = value.trim().toUpperCase();
+		// Handle 'FALSE' as a valid value
+		if (cleaned === 'FALSE') {
+			return 'FALSE';
+		}
+		// Check if it's a valid number
+		if (/^\d+\.?\d*$/.test(cleaned)) {
+			return cleaned;
+		}
+	}
+
+	if (typeof value === 'number') {
+		return value.toString();
+	}
+
+	return null;
+}
+
+/**
  * Validate and filter race entries
  */
 export function validateRaceEntry(entry: any): boolean {
@@ -158,10 +185,10 @@ export function validateRaceEntry(entry: any): boolean {
 
 	// Must have at least some valid data (not all null)
 	const hasValidData = [
-		entry.double, entry.constant, entry.p3, entry.ml,
+		entry.double, entry.constant, entry.p3, entry.correct_p3, entry.ml,
 		entry.live_odds, entry.sharp_percent, entry.action,
 		entry.double_delta, entry.p3_delta, entry.x_figure,
-		entry.will_pay_2, entry.will_pay_1_p3, entry.win_pool
+		entry.will_pay_2, entry.will_pay, entry.will_pay_1_p3, entry.win_pool
 	].some(value => value !== null && value !== undefined && value !== '');
 
 	return hasValidData;
@@ -176,7 +203,8 @@ export function normalizeRaceEntry(entry: any, raceId: string, sourceFile?: stri
 		horse_number: validateHorseNumber(entry.horse_number),
 		double: normalizeNumeric(entry.double),
 		constant: normalizeNumeric(entry.constant),
-		p3: normalizeNumeric(entry.p3),
+		p3: normalizeP3(entry.p3),  // Use new p3 normalizer
+		correct_p3: normalizeNumeric(entry.correct_p3),  // New field
 		ml: normalizeNumeric(entry.ml),
 		live_odds: normalizeNumeric(entry.live_odds),
 		sharp_percent: normalizePercentage(entry.sharp_percent),
@@ -185,6 +213,7 @@ export function normalizeRaceEntry(entry: any, raceId: string, sourceFile?: stri
 		p3_delta: normalizeNumeric(entry.p3_delta),
 		x_figure: normalizeNumeric(entry.x_figure),
 		will_pay_2: normalizeCurrency(entry.will_pay_2),
+		will_pay: normalizeCurrency(entry.will_pay),  // New field
 		will_pay_1_p3: normalizeCurrency(entry.will_pay_1_p3),
 		win_pool: normalizeCurrency(entry.win_pool),
 		veto_rating: entry.veto_rating || null,

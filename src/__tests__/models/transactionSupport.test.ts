@@ -164,7 +164,8 @@ describe("Transaction Support in Models", () => {
 					horse_number: 1,
 					double: 23.4,
 					constant: 58,
-					p3: 37.85,
+					p3: "37.85",  // Changed to string
+					correct_p3: 37.85,  // Added new field
 					ml: 20.0,
 					live_odds: 36.47,
 					sharp_percent: "107.44%",
@@ -173,6 +174,7 @@ describe("Transaction Support in Models", () => {
 					p3_delta: -1.42,
 					x_figure: -1.59,
 					will_pay_2: "$298.00",
+					will_pay: "$149.00",  // Added new field
 					will_pay_1_p3: "$2,238.00",
 					win_pool: "$3,743.00",
 					raw_data: "1 | 23.4 | 58 | 37.85 | 20.0 | 36.47 | 107.44% | -0.17 | -0.17 | -1.42 | -1.59 | $298.00 | $2,238.00 | $3,743.00",
@@ -182,7 +184,8 @@ describe("Transaction Support in Models", () => {
 					horse_number: 2,
 					double: 15.2,
 					constant: 42,
-					p3: 28.10,
+					p3: "28.10",  // Changed to string
+					correct_p3: 28.10,  // Added new field
 					ml: 8.0,
 					live_odds: 12.30,
 					sharp_percent: "95.22%",
@@ -191,6 +194,7 @@ describe("Transaction Support in Models", () => {
 					p3_delta: 1.80,
 					x_figure: 2.05,
 					will_pay_2: "$156.00",
+					will_pay: "$78.00",  // Added new field
 					will_pay_1_p3: "$1,120.00",
 					win_pool: "$2,890.00",
 					raw_data: "2 | 15.2 | 42 | 28.10 | 8.0 | 12.30 | 95.22% | 0.25 | 0.25 | 1.80 | 2.05 | $156.00 | $1,120.00 | $2,890.00",

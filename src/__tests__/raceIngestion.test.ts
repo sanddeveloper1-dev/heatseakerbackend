@@ -73,16 +73,13 @@ describe("Race Ingestion Tests", () => {
 						date: "04-27-25",
 						race_number: "3",
 						post_time: "2:16:00 PM",
-						prev_race_1_winner_horse_number: 5,
-						prev_race_1_winner_payout: 12.40,
-						prev_race_2_winner_horse_number: 3,
-						prev_race_2_winner_payout: 8.60,
 						entries: [
 							{
 								horse_number: 1,
 								double: "23.4",
 								constant: "58",
 								p3: "37.85",
+								correct_p3: "37.85",  // Added new field
 								ml: 20.0,
 								live_odds: 36.47,
 								sharp_percent: "107.44%",
@@ -91,6 +88,7 @@ describe("Race Ingestion Tests", () => {
 								p3_delta: "-1.42",
 								x_figure: "-1.59",
 								will_pay_2: "$298.00",
+								will_pay: "$149.00",  // Added new field
 								will_pay_1_p3: "$2,238.00",
 								win_pool: "$3,743.00",
 								veto_rating: null,
@@ -101,6 +99,7 @@ describe("Race Ingestion Tests", () => {
 								double: "15.2",
 								constant: "42",
 								p3: "28.10",
+								correct_p3: "28.10",  // Added new field
 								ml: 8.0,
 								live_odds: 12.30,
 								sharp_percent: "95.22%",
@@ -109,6 +108,7 @@ describe("Race Ingestion Tests", () => {
 								p3_delta: "1.80",
 								x_figure: "2.05",
 								will_pay_2: "$156.00",
+								will_pay: "$78.00",  // Added new field
 								will_pay_1_p3: "$1,120.00",
 								win_pool: "$2,890.00",
 								veto_rating: null,
@@ -119,6 +119,7 @@ describe("Race Ingestion Tests", () => {
 								double: "8.5",
 								constant: "35",
 								p3: "22.45",
+								correct_p3: "22.45",  // Added new field
 								ml: 4.5,
 								live_odds: 6.20,
 								sharp_percent: "88.15%",
@@ -127,6 +128,7 @@ describe("Race Ingestion Tests", () => {
 								p3_delta: "0.95",
 								x_figure: "1.07",
 								will_pay_2: "$98.00",
+								will_pay: "$49.00",  // Added new field
 								will_pay_1_p3: "$890.00",
 								win_pool: "$1,567.00",
 								veto_rating: null,
@@ -150,7 +152,7 @@ describe("Race Ingestion Tests", () => {
 						race_id: "AQUEDUCT 04-27-25 Race 2",
 						track: "AQUEDUCT",
 						date: "04-27-25",
-						race_number: "2", // Invalid: must be 3-15
+						race_number: "16", // Invalid: must be 1-15
 						entries: [
 							{
 								horse_number: 1,
