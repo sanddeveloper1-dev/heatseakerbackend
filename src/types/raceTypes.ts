@@ -45,6 +45,7 @@ export interface RaceData {
 export interface DailyRaceDataRequest {
 	source: string;
 	races: RaceData[];
+	race_winners: { [raceId: string]: RaceWinnerData }; // Required race winners data
 }
 
 export interface ProcessingResult {
@@ -76,8 +77,17 @@ export interface TransactionResult {
 	errors: string[];
 }
 
+export interface RaceWinnerData {
+	race_id: string;
+	winning_horse_number: number;
+	winning_payout_2_dollar?: number;
+	winning_payout_1_p3?: number;
+	extraction_method: 'simple_correct' | 'header' | 'summary' | 'cross_reference';
+	extraction_confidence: 'high' | 'medium' | 'low';
+}
+
 export interface DatabaseClient {
-	query: (text: string, params?: any[]) => Promise<{ rows: any[] }>;
+	query: (text: string, params?: any[]) => Promise<{ rows: any[]; rowCount?: number }>;
 	connect?: () => Promise<any>;
 	release?: () => void;
 }
