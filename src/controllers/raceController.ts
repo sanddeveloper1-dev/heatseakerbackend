@@ -14,6 +14,7 @@
 
 import { Request, Response } from "express";
 import { RaceIngestionService } from "../services/raceIngestionService";
+import { RaceWinnerService } from "../services/raceWinnerService";
 import { validateDailyRaceData } from "../validators/raceValidator";
 import logger from "../config/logger";
 
@@ -188,4 +189,116 @@ export const getRaceById = async (req: Request, res: Response): Promise<void> =>
 			error: error.message
 		});
 	}
-}; 
+};
+
+/**
+ * Get winner for a specific race
+ */
+export const getWinnerByRaceId = async (req: Request, res: Response): Promise<void> => {
+	try {
+		const { id } = req.params;
+
+		if (!id) {
+			res.status(400).json({
+				success: false,
+				message: "Race ID is required"
+			});
+			return;
+		}
+
+		const winner = await RaceWinnerService.getWinnerByRaceId(id);
+
+		if (!winner) {
+			res.status(404).json({
+				success: false,
+				message: "Winner not found for this race"
+			});
+			return;
+		}
+
+		res.json({
+			success: true,
+			winner
+		});
+	} catch (error: any) {
+		logger.error("Error retrieving winner by race ID", { error: error.message, raceId: req.params.id });
+		res.status(500).json({
+			success: false,
+			message: "Error retrieving winner",
+			error: error.message
+		});
+	}
+};
+
+/**
+ * Get winners by date range
+ */
+export const getWinnersByDateRange = async (req: Request, res: Response): Promise<void> => {
+	try {
+		const { startDate, endDate } = req.query;
+
+		if (!startDate || !endDate) {
+			res.status(400).json({
+				success: false,
+				message: "Both startDate and endDate are required"
+			});
+			return;
+		}
+
+		const winners = await RaceWinnerService.getWinnersByDateRange(startDate as string, endDate as string);
+
+		res.json({
+			success: true,
+			winners,
+			count: winners.length
+		});
+	} catch (error: any) {
+		logger.error("Error retrieving winners by date range", { error: error.message, startDate: req.query.startDate, endDate: req.query.endDate });
+		res.status(500).json({
+			success: false,
+			message: "Error retrieving winners",
+			error: error.message
+		});
+	}
+};
+
+/**
+ * Get winners by track
+ */
+export const getWinnersByTrack = async (req: Request, res: Response): Promise<void> => {
+	try {
+		const { trackId } = req.params;
+
+		if (!trackId) {
+			res.status(400).json({
+				success: false,
+				message: "Track ID is required"
+			});
+			return;
+		}
+
+		const trackIdNum = parseInt(trackId);
+		if (isNaN(trackIdNum)) {
+			res.status(400).json({
+				success: false,
+				message: "Track ID must be a valid number"
+			});
+			return;
+		}
+
+		const winners = await RaceWinnerService.getWinnersByTrack(trackIdNum);
+
+		res.json({
+			success: true,
+			winners,
+			count: winners.length
+		});
+	} catch (error: any) {
+		logger.error("Error retrieving winners by track", { error: error.message, trackId: req.params.trackId });
+		res.status(500).json({
+			success: false,
+			message: "Error retrieving winners",
+			error: error.message
+		});
+	}
+};

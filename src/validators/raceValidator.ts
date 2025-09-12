@@ -92,9 +92,25 @@ export const raceSchema = Joi.object({
 /**
  * Validation schema for the main API request
  */
+/**
+ * Validation schema for race winner data
+ */
+export const raceWinnerSchema = Joi.object({
+	race_id: Joi.string().required(),
+	winning_horse_number: Joi.number().integer().min(1).max(16).required(),
+	winning_payout_2_dollar: Joi.number().min(0).optional(),
+	winning_payout_1_p3: Joi.number().min(0).optional(),
+	extraction_method: Joi.string().valid('simple_correct', 'header', 'summary', 'cross_reference').required(),
+	extraction_confidence: Joi.string().valid('high', 'medium', 'low').required()
+});
+
 export const dailyRaceDataSchema = Joi.object({
 	source: Joi.string().required(),
-	races: Joi.array().items(raceSchema).min(1).required()
+	races: Joi.array().items(raceSchema).min(1).required(),
+	race_winners: Joi.object().pattern(
+		Joi.string(),
+		raceWinnerSchema
+	).required()
 });
 
 /**

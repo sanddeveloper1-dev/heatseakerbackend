@@ -136,7 +136,16 @@ describe("Race Ingestion Tests", () => {
 							}
 						]
 					}
-				]
+				],
+				race_winners: {
+					"AQUEDUCT 04-27-25 Race 3": {
+						race_id: "AQUEDUCT 04-27-25 Race 3",
+						winning_horse_number: 1,
+						winning_payout_2_dollar: 298.00,
+						extraction_method: "simple_correct",
+						extraction_confidence: "high"
+					}
+				}
 			};
 
 			const result = validateDailyRaceData(validData);
