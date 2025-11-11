@@ -21,7 +21,9 @@ import {
 	getRaceById,
 	getWinnerByRaceId,
 	getWinnersByDateRange,
-	getWinnersByTrack
+	getWinnersByTrack,
+	getDailyRaceEntries,
+	getDailyRaceWinners
 } from "../controllers/raceController";
 
 const router = Router();
@@ -35,6 +37,9 @@ router.get("/tracks", apiKeyAuth, getTracks);
 // GET /api/races - Get races by date range
 router.get("/", apiKeyAuth, getRacesByDateRange);
 
+// GET /api/races/entries/daily - Get all race entries for a specific date via Neon
+router.get("/entries/daily", apiKeyAuth, getDailyRaceEntries);
+
 // GET /api/races/:id - Get specific race with entries
 router.get("/:id", apiKeyAuth, getRaceById);
 
@@ -44,6 +49,9 @@ router.get("/:id/winner", apiKeyAuth, getWinnerByRaceId);
 
 // GET /api/races/winners - Get winners by date range
 router.get("/winners", apiKeyAuth, getWinnersByDateRange);
+
+// GET /api/races/winners/daily - Get winners for a specific date via Neon
+router.get("/winners/daily", apiKeyAuth, getDailyRaceWinners);
 
 // GET /api/races/winners/track/:trackId - Get winners by track
 router.get("/winners/track/:trackId", apiKeyAuth, getWinnersByTrack);

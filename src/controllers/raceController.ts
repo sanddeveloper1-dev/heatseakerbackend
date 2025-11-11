@@ -17,6 +17,7 @@ import { RaceIngestionService } from "../services/raceIngestionService";
 import { RaceWinnerService } from "../services/raceWinnerService";
 import { validateDailyRaceData } from "../validators/raceValidator";
 import logger from "../config/logger";
+import { fetchDailyRaceEntries, fetchDailyRaceWinners } from "../services/raceDataFetchService";
 
 /**
  * Handle daily race data ingestion
@@ -298,6 +299,72 @@ export const getWinnersByTrack = async (req: Request, res: Response): Promise<vo
 		res.status(500).json({
 			success: false,
 			message: "Error retrieving winners",
+			error: error.message
+		});
+	}
+};
+
+/**
+ * Fetch daily race entries across all tracks using the Neon Data API.
+ */
+export const getDailyRaceEntries = async (req: Request, res: Response): Promise<void> => {
+	try {
+		const { date } = req.query;
+
+		if (!date || typeof date !== "string") {
+			res.status(400).json({
+				success: false,
+				message: "A valid 'date' query parameter (YYYY-MM-DD) is required"
+			});
+			return;
+		}
+
+		const entries = await fetchDailyRaceEntries(date);
+
+		res.status(200).json({
+			success: true,
+			date,
+			count: entries.length,
+			entries
+		});
+	} catch (error: any) {
+		logger.error("Error fetching daily race entries", { error: error.message, date: req.query.date });
+		res.status(500).json({
+			success: false,
+			message: "Error fetching daily race entries",
+			error: error.message
+		});
+	}
+};
+
+/**
+ * Fetch daily race winners across all tracks using the Neon Data API.
+ */
+export const getDailyRaceWinners = async (req: Request, res: Response): Promise<void> => {
+	try {
+		const { date } = req.query;
+
+		if (!date || typeof date !== "string") {
+			res.status(400).json({
+				success: false,
+				message: "A valid 'date' query parameter (YYYY-MM-DD) is required"
+			});
+			return;
+		}
+
+		const winners = await fetchDailyRaceWinners(date);
+
+		res.status(200).json({
+			success: true,
+			date,
+			count: winners.length,
+			winners
+		});
+	} catch (error: any) {
+		logger.error("Error fetching daily race winners", { error: error.message, date: req.query.date });
+		res.status(500).json({
+			success: false,
+			message: "Error fetching daily race winners",
 			error: error.message
 		});
 	}
