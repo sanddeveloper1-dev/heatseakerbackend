@@ -40,9 +40,6 @@ router.get("/", apiKeyAuth, getRacesByDateRange);
 // GET /api/races/entries/daily - Get all race entries for a specific date
 router.get("/entries/daily", apiKeyAuth, getDailyRaceEntries);
 
-// GET /api/races/:id - Get specific race with entries
-router.get("/:id", apiKeyAuth, getRaceById);
-
 // Winner endpoints
 // GET /api/races/:id/winner - Get winner for specific race
 router.get("/:id/winner", apiKeyAuth, getWinnerByRaceId);
@@ -55,5 +52,8 @@ router.get("/winners/daily", apiKeyAuth, getDailyRaceWinners);
 
 // GET /api/races/winners/track/:trackId - Get winners by track
 router.get("/winners/track/:trackId", apiKeyAuth, getWinnersByTrack);
+
+// GET /api/races/:id - Get specific race with entries
+router.get("/:id", apiKeyAuth, getRaceById);
 
 export default router; 
