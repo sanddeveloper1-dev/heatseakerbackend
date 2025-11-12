@@ -9,11 +9,11 @@
  * This software is provided "AS IS" without warranty.
  * For complete terms, see SERVICE_AGREEMENT.md
  *
- * Service for retrieving daily race data via the Neon Data API.
+ * Service for retrieving daily race data directly from PostgreSQL.
  */
 
+import pool from "../config/database";
 import logger from "../config/logger";
-import { executeNeonQuery } from "./neonDataService";
 
 export interface DailyRaceEntryRecord {
 	race_id: string;
@@ -56,7 +56,7 @@ export interface DailyRaceWinnerRecord {
 }
 
 export const fetchDailyRaceEntries = async (date: string): Promise<DailyRaceEntryRecord[]> => {
-	logger.info("Fetching daily race entries from Neon Data API", { date });
+	logger.info("Fetching daily race entries from database", { date });
 
 	const sql = `
 		SELECT
@@ -91,11 +91,12 @@ export const fetchDailyRaceEntries = async (date: string): Promise<DailyRaceEntr
 		ORDER BY t.code, r.race_number, re.horse_number;
 	`;
 
-	return executeNeonQuery<DailyRaceEntryRecord>(sql, [date]);
+	const result = await pool.query<DailyRaceEntryRecord>(sql, [date]);
+	return result.rows;
 };
 
 export const fetchDailyRaceWinners = async (date: string): Promise<DailyRaceWinnerRecord[]> => {
-	logger.info("Fetching daily race winners from Neon Data API", { date });
+	logger.info("Fetching daily race winners from database", { date });
 
 	const sql = `
 		SELECT
@@ -116,5 +117,6 @@ export const fetchDailyRaceWinners = async (date: string): Promise<DailyRaceWinn
 		ORDER BY t.code, r.race_number;
 	`;
 
-	return executeNeonQuery<DailyRaceWinnerRecord>(sql, [date]);
+	const result = await pool.query<DailyRaceWinnerRecord>(sql, [date]);
+	return result.rows;
 };

@@ -305,7 +305,7 @@ export const getWinnersByTrack = async (req: Request, res: Response): Promise<vo
 };
 
 /**
- * Fetch daily race entries across all tracks using the Neon Data API.
+ * Fetch daily race entries across all tracks directly from the database.
  */
 export const getDailyRaceEntries = async (req: Request, res: Response): Promise<void> => {
 	try {
@@ -338,7 +338,7 @@ export const getDailyRaceEntries = async (req: Request, res: Response): Promise<
 };
 
 /**
- * Fetch daily race winners across all tracks using the Neon Data API.
+ * Fetch daily race winners across all tracks directly from the database.
  */
 export const getDailyRaceWinners = async (req: Request, res: Response): Promise<void> => {
 	try {

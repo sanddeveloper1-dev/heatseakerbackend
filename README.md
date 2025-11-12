@@ -92,8 +92,8 @@ POST /api/submit-bets - Submit betting slips
 ```
 POST /api/races/ingest - Ingest race data
 GET  /api/races        - Retrieve race information
-GET  /api/races/entries/daily?date=YYYY-MM-DD - Fetch all race entries for the specified date via Neon Data API
-GET  /api/races/winners/daily?date=YYYY-MM-DD - Fetch race winners for the specified date via Neon Data API
+GET  /api/races/entries/daily?date=YYYY-MM-DD - Fetch all race entries for the specified date
+GET  /api/races/winners/daily?date=YYYY-MM-DD - Fetch race winners for the specified date
 ```
 
 ### **API Authentication**
@@ -279,14 +279,6 @@ LOG_LEVEL=info
 
 # API Configuration
 API_KEY=your-secret-api-key
-
-# Neon Data API Configuration
-NEON_API_KEY=your-neon-data-api-key
-NEON_PROJECT_ID=your-neon-project-id
-# Optional overrides
-NEON_BRANCH_ID=branch-id-if-not-default
-NEON_DATABASE=database-name-if-not-default
-NEON_API_URL=https://api.neon.tech/sql
 ```
 
 ## ⚙️ Configuration

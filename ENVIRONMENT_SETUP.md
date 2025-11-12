@@ -30,18 +30,6 @@ DATABASE_URL=postgresql://username:password@host:port/database
 DB_SSL_REJECT_UNAUTHORIZED=true
 ```
 
-### Neon Data API (Read-Only Queries)
-```bash
-# Required for Neon Data API access
-NEON_API_KEY=your-neon-data-api-key
-NEON_PROJECT_ID=your-neon-project-id
-
-# Optional overrides
-NEON_BRANCH_ID=branch-id-if-not-default
-NEON_DATABASE=database-name-if-not-default
-NEON_API_URL=https://api.neon.tech/sql
-```
-
 ### Logging
 ```bash
 # Log level (debug, info, warn, error)
