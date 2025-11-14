@@ -92,6 +92,8 @@ POST /api/submit-bets - Submit betting slips
 ```
 POST /api/races/ingest - Ingest race data
 GET  /api/races        - Retrieve race information
+GET  /api/races/entries/daily?date=YYYY-MM-DD - Fetch all race entries for the specified date
+GET  /api/races/winners/daily?date=YYYY-MM-DD - Fetch race winners for the specified date
 ```
 
 ### **API Authentication**
