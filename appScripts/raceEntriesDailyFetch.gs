@@ -173,11 +173,29 @@ function fetchRaceEntries_(config, targetDate) {
     throw new Error('Race entry fetch failed (' + status + '): ' + response.getContentText());
   }
 
-  const data = JSON.parse(response.getContentText() || '[]');
-  if (!Array.isArray(data)) {
-    throw new Error('Unexpected response format. Expected an array of race entries.');
+  const raw = response.getContentText();
+  const data = JSON.parse(raw || '[]');
+
+  if (Array.isArray(data)) {
+    return data;
   }
-  return data;
+
+  if (data && typeof data === 'object' && Array.isArray(data.entries)) {
+    Logger.log(
+      'Race entry API metadata: %s',
+      JSON.stringify(
+        {
+          success: data.success,
+          date: data.date || targetDate,
+          count: data.count,
+          entriesLength: data.entries.length
+        }
+      )
+    );
+    return data.entries;
+  }
+
+  throw new Error('Unexpected response format. Expected an array of race entries.');
 }
 
 /**
