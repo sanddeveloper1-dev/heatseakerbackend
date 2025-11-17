@@ -55,8 +55,8 @@ export interface DailyRaceWinnerRecord {
 	extraction_confidence?: string | null;
 }
 
-export const fetchDailyRaceEntries = async (date: string): Promise<DailyRaceEntryRecord[]> => {
-	logger.info("Fetching daily race entries from database", { date });
+export const fetchDailyRaceEntries = async (date: string, trackCode?: string): Promise<DailyRaceEntryRecord[]> => {
+	logger.info("Fetching daily race entries from database", { date, trackCode });
 
 	const sql = `
 		SELECT
@@ -88,15 +88,17 @@ export const fetchDailyRaceEntries = async (date: string): Promise<DailyRaceEntr
 		JOIN races r ON re.race_id = r.id
 		JOIN tracks t ON r.track_id = t.id
 		WHERE r.date = $1
+		${trackCode ? 'AND t.code = $2' : ''}
 		ORDER BY t.code, r.race_number, re.horse_number;
 	`;
 
-	const result = await pool.query<DailyRaceEntryRecord>(sql, [date]);
+	const params = trackCode ? [date, trackCode] : [date];
+	const result = await pool.query<DailyRaceEntryRecord>(sql, params);
 	return result.rows;
 };
 
-export const fetchDailyRaceWinners = async (date: string): Promise<DailyRaceWinnerRecord[]> => {
-	logger.info("Fetching daily race winners from database", { date });
+export const fetchDailyRaceWinners = async (date: string, trackCode?: string): Promise<DailyRaceWinnerRecord[]> => {
+	logger.info("Fetching daily race winners from database", { date, trackCode });
 
 	const sql = `
 		SELECT
@@ -114,9 +116,11 @@ export const fetchDailyRaceWinners = async (date: string): Promise<DailyRaceWinn
 		JOIN races r ON rw.race_id = r.id
 		JOIN tracks t ON r.track_id = t.id
 		WHERE r.date = $1
+		${trackCode ? 'AND t.code = $2' : ''}
 		ORDER BY t.code, r.race_number;
 	`;
 
-	const result = await pool.query<DailyRaceWinnerRecord>(sql, [date]);
+	const params = trackCode ? [date, trackCode] : [date];
+	const result = await pool.query<DailyRaceWinnerRecord>(sql, params);
 	return result.rows;
 };
