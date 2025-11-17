@@ -306,10 +306,11 @@ export const getWinnersByTrack = async (req: Request, res: Response): Promise<vo
 
 /**
  * Fetch daily race entries across all tracks directly from the database.
+ * Optional trackCode query parameter to filter by specific track.
  */
 export const getDailyRaceEntries = async (req: Request, res: Response): Promise<void> => {
 	try {
-		const { date } = req.query;
+		const { date, trackCode } = req.query;
 
 		if (!date || typeof date !== "string") {
 			res.status(400).json({
@@ -319,16 +320,18 @@ export const getDailyRaceEntries = async (req: Request, res: Response): Promise<
 			return;
 		}
 
-		const entries = await fetchDailyRaceEntries(date);
+		const trackCodeParam = typeof trackCode === "string" ? trackCode : undefined;
+		const entries = await fetchDailyRaceEntries(date, trackCodeParam);
 
 		res.status(200).json({
 			success: true,
 			date,
+			trackCode: trackCodeParam || null,
 			count: entries.length,
 			entries
 		});
 	} catch (error: any) {
-		logger.error("Error fetching daily race entries", { error: error.message, date: req.query.date });
+		logger.error("Error fetching daily race entries", { error: error.message, date: req.query.date, trackCode: req.query.trackCode });
 		res.status(500).json({
 			success: false,
 			message: "Error fetching daily race entries",
@@ -339,10 +342,11 @@ export const getDailyRaceEntries = async (req: Request, res: Response): Promise<
 
 /**
  * Fetch daily race winners across all tracks directly from the database.
+ * Optional trackCode query parameter to filter by specific track.
  */
 export const getDailyRaceWinners = async (req: Request, res: Response): Promise<void> => {
 	try {
-		const { date } = req.query;
+		const { date, trackCode } = req.query;
 
 		if (!date || typeof date !== "string") {
 			res.status(400).json({
@@ -352,16 +356,18 @@ export const getDailyRaceWinners = async (req: Request, res: Response): Promise<
 			return;
 		}
 
-		const winners = await fetchDailyRaceWinners(date);
+		const trackCodeParam = typeof trackCode === "string" ? trackCode : undefined;
+		const winners = await fetchDailyRaceWinners(date, trackCodeParam);
 
 		res.status(200).json({
 			success: true,
 			date,
+			trackCode: trackCodeParam || null,
 			count: winners.length,
 			winners
 		});
 	} catch (error: any) {
-		logger.error("Error fetching daily race winners", { error: error.message, date: req.query.date });
+		logger.error("Error fetching daily race winners", { error: error.message, date: req.query.date, trackCode: req.query.trackCode });
 		res.status(500).json({
 			success: false,
 			message: "Error fetching daily race winners",
