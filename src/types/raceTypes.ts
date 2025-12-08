@@ -30,6 +30,9 @@ export interface RaceEntryData {
 	will_pay_1_p3?: string;
 	win_pool?: string;
 	veto_rating?: string;
+	purse?: string;
+	race_type?: string;
+	age?: string;
 	raw_data?: string;
 }
 

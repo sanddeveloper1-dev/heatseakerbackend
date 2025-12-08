@@ -188,7 +188,8 @@ export function validateRaceEntry(entry: any): boolean {
 		entry.double, entry.constant, entry.p3, entry.correct_p3, entry.ml,
 		entry.live_odds, entry.sharp_percent, entry.action,
 		entry.double_delta, entry.p3_delta, entry.x_figure,
-		entry.will_pay_2, entry.will_pay, entry.will_pay_1_p3, entry.win_pool
+		entry.will_pay_2, entry.will_pay, entry.will_pay_1_p3, entry.win_pool,
+		entry.purse, entry.race_type, entry.age
 	].some(value => value !== null && value !== undefined && value !== '');
 
 	return hasValidData;
@@ -217,6 +218,9 @@ export function normalizeRaceEntry(entry: any, raceId: string, sourceFile?: stri
 		will_pay_1_p3: normalizeCurrency(entry.will_pay_1_p3),
 		win_pool: normalizeCurrency(entry.win_pool),
 		veto_rating: entry.veto_rating || null,
+		purse: entry.purse || null,
+		race_type: entry.race_type || null,
+		age: entry.age || null,
 		raw_data: entry.raw_data || null,
 		source_file: sourceFile || null
 	};
