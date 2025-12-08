@@ -36,6 +36,9 @@ export interface RaceEntry {
 	will_pay_1_p3?: string;
 	win_pool?: string;
 	veto_rating?: string;
+	purse?: string;
+	race_type?: string;
+	age?: string;
 	raw_data?: string;
 	source_file?: string;
 	created_at?: Date;
@@ -100,8 +103,8 @@ export class RaceEntryModel {
 				`INSERT INTO race_entries (
           race_id, horse_number, double, constant, p3, correct_p3, ml, live_odds,
           sharp_percent, action, double_delta, p3_delta, x_figure,
-          will_pay_2, will_pay, will_pay_1_p3, win_pool, veto_rating, raw_data, source_file
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20) 
+          will_pay_2, will_pay, will_pay_1_p3, win_pool, veto_rating, purse, race_type, age, raw_data, source_file
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23) 
         RETURNING *`,
 				[
 					entry.race_id,
@@ -122,6 +125,9 @@ export class RaceEntryModel {
 					entry.will_pay_1_p3,
 					entry.win_pool,
 					entry.veto_rating,
+					entry.purse,
+					entry.race_type,
+					entry.age,
 					entry.raw_data,
 					entry.source_file,
 				]
@@ -142,8 +148,8 @@ export class RaceEntryModel {
 				`INSERT INTO race_entries (
           race_id, horse_number, double, constant, p3, correct_p3, ml, live_odds,
           sharp_percent, action, double_delta, p3_delta, x_figure,
-          will_pay_2, will_pay, will_pay_1_p3, win_pool, veto_rating, raw_data, source_file
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20) 
+          will_pay_2, will_pay, will_pay_1_p3, win_pool, veto_rating, purse, race_type, age, raw_data, source_file
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23) 
         RETURNING *`,
 				[
 					entry.race_id,
@@ -164,6 +170,9 @@ export class RaceEntryModel {
 					entry.will_pay_1_p3,
 					entry.win_pool,
 					entry.veto_rating,
+					entry.purse,
+					entry.race_type,
+					entry.age,
 					entry.raw_data,
 					entry.source_file,
 				]
@@ -185,7 +194,7 @@ export class RaceEntryModel {
           double = $3, constant = $4, p3 = $5, correct_p3 = $6, ml = $7, live_odds = $8,
           sharp_percent = $9, action = $10, double_delta = $11, p3_delta = $12,
           x_figure = $13, will_pay_2 = $14, will_pay = $15, will_pay_1_p3 = $16, win_pool = $17,
-          veto_rating = $18, raw_data = $19, source_file = $20, updated_at = CURRENT_TIMESTAMP
+          veto_rating = $18, purse = $19, race_type = $20, age = $21, raw_data = $22, source_file = $23, updated_at = CURRENT_TIMESTAMP
         WHERE race_id = $1 AND horse_number = $2 
         RETURNING *`,
 				[
@@ -207,6 +216,9 @@ export class RaceEntryModel {
 					entry.will_pay_1_p3,
 					entry.win_pool,
 					entry.veto_rating,
+					entry.purse,
+					entry.race_type,
+					entry.age,
 					entry.raw_data,
 					entry.source_file,
 				]
@@ -228,7 +240,7 @@ export class RaceEntryModel {
           double = $3, constant = $4, p3 = $5, correct_p3 = $6, ml = $7, live_odds = $8,
           sharp_percent = $9, action = $10, double_delta = $11, p3_delta = $12,
           x_figure = $13, will_pay_2 = $14, will_pay = $15, will_pay_1_p3 = $16, win_pool = $17,
-          veto_rating = $18, raw_data = $19, source_file = $20, updated_at = CURRENT_TIMESTAMP
+          veto_rating = $18, purse = $19, race_type = $20, age = $21, raw_data = $22, source_file = $23, updated_at = CURRENT_TIMESTAMP
         WHERE race_id = $1 AND horse_number = $2 
         RETURNING *`,
 				[
@@ -250,6 +262,9 @@ export class RaceEntryModel {
 					entry.will_pay_1_p3,
 					entry.win_pool,
 					entry.veto_rating,
+					entry.purse,
+					entry.race_type,
+					entry.age,
 					entry.raw_data,
 					entry.source_file,
 				]
@@ -354,21 +369,21 @@ export class RaceEntryModel {
 			// Bulk insert new entries
 			if (toInsert.length > 0) {
 				const insertValues = toInsert.map((entry, index) => {
-					const offset = index * 20; // 20 fields per entry
-					return `($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4}, $${offset + 5}, $${offset + 6}, $${offset + 7}, $${offset + 8}, $${offset + 9}, $${offset + 10}, $${offset + 11}, $${offset + 12}, $${offset + 13}, $${offset + 14}, $${offset + 15}, $${offset + 16}, $${offset + 17}, $${offset + 18}, $${offset + 19}, $${offset + 20})`;
+					const offset = index * 23; // 23 fields per entry
+					return `($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4}, $${offset + 5}, $${offset + 6}, $${offset + 7}, $${offset + 8}, $${offset + 9}, $${offset + 10}, $${offset + 11}, $${offset + 12}, $${offset + 13}, $${offset + 14}, $${offset + 15}, $${offset + 16}, $${offset + 17}, $${offset + 18}, $${offset + 19}, $${offset + 20}, $${offset + 21}, $${offset + 22}, $${offset + 23})`;
 				}).join(', ');
 
 				const insertParams = toInsert.flatMap(entry => [
 					entry.race_id, entry.horse_number, entry.double, entry.constant, entry.p3, entry.correct_p3, entry.ml, entry.live_odds,
 					entry.sharp_percent, entry.action, entry.double_delta, entry.p3_delta, entry.x_figure,
-					entry.will_pay_2, entry.will_pay, entry.will_pay_1_p3, entry.win_pool, entry.veto_rating, entry.raw_data, entry.source_file
+					entry.will_pay_2, entry.will_pay, entry.will_pay_1_p3, entry.win_pool, entry.veto_rating, entry.purse, entry.race_type, entry.age, entry.raw_data, entry.source_file
 				]);
 
 				const insertResult = await client.query(
 					`INSERT INTO race_entries (
 						race_id, horse_number, double, constant, p3, correct_p3, ml, live_odds,
 						sharp_percent, action, double_delta, p3_delta, x_figure,
-						will_pay_2, will_pay, will_pay_1_p3, win_pool, veto_rating, raw_data, source_file
+						will_pay_2, will_pay, will_pay_1_p3, win_pool, veto_rating, purse, race_type, age, raw_data, source_file
 					) VALUES ${insertValues} RETURNING *`,
 					insertParams
 				);

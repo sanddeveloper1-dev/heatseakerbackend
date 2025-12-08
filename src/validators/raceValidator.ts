@@ -65,6 +65,9 @@ export const raceEntrySchema = Joi.object({
 	will_pay_1_p3: Joi.string().allow('', null),
 	win_pool: Joi.string().allow('', null),
 	veto_rating: Joi.string().allow('', null),
+	purse: Joi.string().allow('', null),
+	race_type: Joi.string().allow('', null),
+	age: Joi.string().allow('', null),
 	raw_data: Joi.string().allow('', null)
 });
 
