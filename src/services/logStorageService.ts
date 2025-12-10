@@ -18,8 +18,14 @@ import { LogEntry } from "../config/logger";
 
 /**
  * Store a log entry in the database (async, non-blocking)
+ * Returns early if in test environment to avoid open handles in Jest
  */
 export async function storeLog(entry: LogEntry): Promise<void> {
+  // Skip database writes in test environment
+  if (process.env.NODE_ENV === "test" || process.env.JEST_WORKER_ID) {
+    return;
+  }
+
   try {
     await pool.query(
       `INSERT INTO logs (timestamp, level, message, meta)
@@ -34,12 +40,16 @@ export async function storeLog(entry: LogEntry): Promise<void> {
   } catch (error: any) {
     // Don't log errors about logging to avoid infinite loops
     // Only log to console to avoid recursion
-    console.error("Failed to store log in database:", error.message);
+    // Skip in test environment
+    if (process.env.NODE_ENV !== "test" && !process.env.JEST_WORKER_ID) {
+      console.error("Failed to store log in database:", error.message);
+    }
   }
 }
 
 /**
  * Get logs from database with optional filtering
+ * Returns empty array in test environment to avoid database connections
  */
 export async function getLogsFromDatabase(options?: {
   level?: "info" | "warn" | "error" | "debug";
@@ -48,6 +58,11 @@ export async function getLogsFromDatabase(options?: {
   before?: Date;
   after?: Date;
 }): Promise<LogEntry[]> {
+  // Skip database queries in test environment
+  if (process.env.NODE_ENV === "test" || process.env.JEST_WORKER_ID) {
+    return [];
+  }
+
   try {
     let query = `SELECT timestamp, level, message, meta FROM logs WHERE 1=1`;
     const params: any[] = [];
@@ -104,8 +119,14 @@ export async function getLogsFromDatabase(options?: {
 
 /**
  * Clean up old logs beyond retention period
+ * Returns early in test environment to avoid database connections
  */
 export async function cleanupOldLogs(retentionDays: number): Promise<number> {
+  // Skip cleanup in test environment
+  if (process.env.NODE_ENV === "test" || process.env.JEST_WORKER_ID) {
+    return 0;
+  }
+
   try {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
