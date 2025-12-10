@@ -40,12 +40,12 @@ function validateEmailConfig(): void {
 	if (!config.email.reportRecipient) {
 		throw new Error("Email SMTP configuration is missing: REPORT_EMAIL_RECIPIENT is required");
 	}
-	
+
 	// Validate port is a number
 	if (isNaN(config.email.smtpPort) || config.email.smtpPort < 1 || config.email.smtpPort > 65535) {
 		throw new Error(`Invalid SMTP_PORT: ${config.email.smtpPort}. Must be a number between 1 and 65535`);
 	}
-	
+
 	// Validate email addresses format (basic check)
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	if (!emailRegex.test(config.email.fromAddress)) {
