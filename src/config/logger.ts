@@ -26,9 +26,12 @@ export interface LogEntry {
 // In-memory ring buffer for logs (max 1000 entries)
 const MAX_LOG_BUFFER_SIZE = 1000;
 const logBuffer: LogEntry[] = [];
+// Promise-based lock to prevent race conditions (Node.js is single-threaded but async operations can interleave)
+let bufferLockPromise: Promise<void> = Promise.resolve();
 
 /**
  * Add a log entry to the in-memory ring buffer and database (async, non-blocking)
+ * Thread-safe: ensures atomic operations on the buffer
  */
 function addToBuffer(level: LogEntry["level"], message: string, meta?: any): void {
   const entry: LogEntry = {
@@ -38,21 +41,27 @@ function addToBuffer(level: LogEntry["level"], message: string, meta?: any): voi
     meta: meta ? (typeof meta === "object" ? meta : { data: meta }) : undefined,
   };
 
-  // Add to in-memory buffer (fast access)
-  logBuffer.push(entry);
+  // Atomic operation: check length and add/remove in one go
+  // Use promise-based lock to prevent concurrent modifications
+  bufferLockPromise = bufferLockPromise.then(() => {
+    // Add to in-memory buffer (fast access)
+    logBuffer.push(entry);
 
-  // Remove oldest entries if buffer exceeds max size
-  if (logBuffer.length > MAX_LOG_BUFFER_SIZE) {
-    logBuffer.shift();
-  }
+    // Remove oldest entries if buffer exceeds max size (atomic check and shift)
+    if (logBuffer.length > MAX_LOG_BUFFER_SIZE) {
+      logBuffer.shift();
+    }
+  });
 
   // Store in database asynchronously (non-blocking, fire-and-forget)
   // Skip database writes in test environment to avoid open handles in Jest
   if (process.env.NODE_ENV !== "test" && !process.env.JEST_WORKER_ID) {
     // Don't await to avoid blocking the logging operation
-    storeLog(entry).catch(() => {
-      // Silently fail - database write errors are already handled in storeLog
-      // We don't want logging failures to break the application
+    storeLog(entry).catch((error) => {
+      // Log to console.error as fallback since logger might cause recursion
+      // This ensures database write failures are visible for debugging
+      console.error("Failed to store log entry in database:", error instanceof Error ? error.message : String(error));
+      // Optionally track failure metrics here in the future
     });
   }
 }
@@ -119,15 +128,20 @@ export async function getLogs(options?: {
 
   try {
     // Get logs from database (historical logs)
+    // Limit database query to reasonable size to prevent memory issues
+    // We'll get slightly more than needed to account for duplicates, but cap it
     const { getLogsFromDatabase } = await import("../services/logStorageService");
+    const dbQueryLimit = Math.min(limit * 2, 1000); // Cap at 1000 to prevent memory issues
     const dbLogs = await getLogsFromDatabase({
       level: options?.level,
-      limit: limit * 2, // Get more from DB to account for potential duplicates
+      limit: dbQueryLimit,
       search: options?.search,
     });
 
     // Get logs from in-memory buffer (recent logs)
-    let bufferLogs = [...logBuffer];
+    // Create a snapshot copy to avoid race conditions during iteration
+    await bufferLockPromise; // Wait for any pending writes
+    let bufferLogs = [...logBuffer]; // Create snapshot
 
     // Filter in-memory buffer by level
     if (options?.level) {
@@ -162,15 +176,21 @@ export async function getLogs(options?: {
     }
 
     // Convert map to array and sort by timestamp descending (latest first)
-    const mergedLogs = Array.from(logMap.values()).sort(
-      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    );
+    // Use efficient sorting and limit early to reduce memory usage
+    const mergedLogs = Array.from(logMap.values());
 
-    // Apply limit
+    // Sort efficiently (only if we have logs)
+    if (mergedLogs.length > 0) {
+      mergedLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    }
+
+    // Apply limit to final result
     return mergedLogs.slice(0, limit);
   } catch (error: any) {
     // If database query fails, fall back to in-memory buffer only
-    let filtered = [...logBuffer];
+    // Create a snapshot copy to avoid race conditions
+    await bufferLockPromise; // Wait for any pending writes
+    let filtered = [...logBuffer]; // Create snapshot
 
     if (options?.level) {
       filtered = filtered.filter((entry) => entry.level === options.level);

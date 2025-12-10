@@ -185,11 +185,11 @@ async function startServer() {
 				reportTask.stop();
 				logger.info("Log cleanup job stopped");
 				logger.info("Daily report scheduler stopped");
-				
+
 				// Close database pool
 				const { closeDatabasePool } = await import("./config/database");
 				await closeDatabasePool();
-				
+
 				process.exit(0);
 			} catch (error: any) {
 				logger.error("Error during shutdown", { error: error.message });
