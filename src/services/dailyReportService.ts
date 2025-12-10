@@ -295,3 +295,4 @@ export async function generateDailyReport(): Promise<DailyReportData> {
 		throw error;
 	}
 }
+

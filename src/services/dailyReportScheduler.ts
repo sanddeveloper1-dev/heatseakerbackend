@@ -75,3 +75,4 @@ export async function triggerDailyReport(): Promise<void> {
 	logger.info("Manually triggering daily report");
 	await runDailyReport();
 }
+

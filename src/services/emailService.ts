@@ -91,3 +91,4 @@ export async function testEmailConfiguration(): Promise<boolean> {
 		return false;
 	}
 }
+
