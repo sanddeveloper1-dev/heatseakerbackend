@@ -13,14 +13,18 @@
  */
 
 import express from "express";
+import cors from "cors";
 import config from "./config/config";
 import betRoutes from "./routes/betRoutes";
 import raceRoutes from "./routes/raceRoutes";
+import authRoutes from "./routes/authRoutes";
+import logRoutes from "./routes/logRoutes";
 import logger from "./config/logger";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { fileURLToPath } from "url";
 import { checkConnectionHealth } from "./config/database";
+import { Request, Response, NextFunction } from "express";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = join(__filename, "..");
@@ -31,7 +35,49 @@ const APP_VERSION = packageJson.version;
 
 // Initialize the Express app
 const app = express();
+
+// CORS configuration for Admin UI
+app.use(
+	cors({
+		origin: config.uiOrigin,
+		credentials: true,
+		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+		allowedHeaders: ["Content-Type", "Authorization", "x-api-key"],
+	})
+);
+
 app.use(express.json());
+
+// Request logging middleware
+app.use((req: Request, res: Response, next: NextFunction) => {
+	const startTime = Date.now();
+	const requestId = Math.random().toString(36).substring(7);
+
+	// Skip logging for health checks (or log at lower level)
+	const isHealthCheck = req.path === "/health" || req.path === "/health/db";
+
+	// Log request start (only for non-health checks)
+	if (!isHealthCheck) {
+		logger.info(`[${requestId}] ${req.method} ${req.path}`, {
+			ip: req.ip,
+			userAgent: req.get("user-agent"),
+		});
+	}
+
+	// Capture response finish
+	res.on("finish", () => {
+		const duration = Date.now() - startTime;
+		if (!isHealthCheck) {
+			const logLevel = res.statusCode >= 500 ? "error" : res.statusCode >= 400 ? "warn" : "info";
+			logger[logLevel](`[${requestId}] ${req.method} ${req.path} ${res.statusCode} - ${duration}ms`, {
+				statusCode: res.statusCode,
+				duration,
+			});
+		}
+	});
+
+	next();
+});
 
 // Add the health check route
 app.get("/health", (req, res) => {
@@ -76,6 +122,8 @@ app.get("/health/db", async (req, res) => {
 });
 
 // Mount routes
+app.use("/api/auth", authRoutes);
+app.use("/api/logs", logRoutes);
 app.use("/api", betRoutes);
 app.use("/api/races", raceRoutes);
 

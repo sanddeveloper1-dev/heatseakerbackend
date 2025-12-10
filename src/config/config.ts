@@ -30,4 +30,10 @@ export default {
     idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
     connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
   },
+  // Admin UI and JWT configuration
+  uiOrigin: process.env.UI_ORIGIN || "http://localhost:3000",
+  adminUsername: process.env.ADMIN_USERNAME,
+  adminPasswordHash: process.env.ADMIN_PASSWORD_HASH,
+  jwtSecret: process.env.JWT_SECRET || process.env.SESSION_SECRET,
+  logLevel: process.env.LOG_LEVEL || "info",
 };

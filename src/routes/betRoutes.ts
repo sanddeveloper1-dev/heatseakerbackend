@@ -13,11 +13,11 @@
  */
 
 import { Router } from "express";
-import apiKeyAuth from "../middleware/apiKeyAuth"; // Import API key middleware
+import flexibleAuth from "../middleware/flexibleAuth"; // Import flexible auth middleware (JWT OR API key)
 import { handleBetRequest } from "../controllers/betController";
 
 const router = Router();
 
-router.post("/submit-bets", apiKeyAuth, handleBetRequest);
+router.post("/submit-bets", flexibleAuth, handleBetRequest);
 
 export default router;
