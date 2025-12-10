@@ -19,21 +19,58 @@ import { DailyReportData } from "./dailyReportService";
 import { generateHtmlReport } from "./dailyReportEmailTemplate";
 
 /**
+ * Validate email configuration
+ */
+function validateEmailConfig(): void {
+	if (!config.email.smtpHost) {
+		throw new Error("Email SMTP configuration is missing: SMTP_HOST is required");
+	}
+	if (!config.email.smtpPort) {
+		throw new Error("Email SMTP configuration is missing: SMTP_PORT is required");
+	}
+	if (!config.email.smtpUser) {
+		throw new Error("Email SMTP configuration is missing: SMTP_USER is required");
+	}
+	if (!config.email.smtpPassword) {
+		throw new Error("Email SMTP configuration is missing: SMTP_PASSWORD is required");
+	}
+	if (!config.email.fromAddress) {
+		throw new Error("Email SMTP configuration is missing: EMAIL_FROM is required");
+	}
+	if (!config.email.reportRecipient) {
+		throw new Error("Email SMTP configuration is missing: REPORT_EMAIL_RECIPIENT is required");
+	}
+	
+	// Validate port is a number
+	if (isNaN(config.email.smtpPort) || config.email.smtpPort < 1 || config.email.smtpPort > 65535) {
+		throw new Error(`Invalid SMTP_PORT: ${config.email.smtpPort}. Must be a number between 1 and 65535`);
+	}
+	
+	// Validate email addresses format (basic check)
+	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	if (!emailRegex.test(config.email.fromAddress)) {
+		throw new Error(`Invalid EMAIL_FROM format: ${config.email.fromAddress}`);
+	}
+	if (!emailRegex.test(config.email.reportRecipient)) {
+		throw new Error(`Invalid REPORT_EMAIL_RECIPIENT format: ${config.email.reportRecipient}`);
+	}
+}
+
+/**
  * Create nodemailer transporter from config
  */
 function createTransporter() {
-	if (!config.email.smtpHost || !config.email.smtpPort) {
-		throw new Error("Email SMTP configuration is missing");
-	}
+	// Validate configuration before creating transporter
+	validateEmailConfig();
 
 	const transporterConfig: any = {
 		host: config.email.smtpHost,
 		port: config.email.smtpPort,
 		secure: config.email.smtpPort === 465, // true for 465, false for other ports
-		auth: config.email.smtpUser && config.email.smtpPassword ? {
+		auth: {
 			user: config.email.smtpUser,
 			pass: config.email.smtpPassword,
-		} : undefined,
+		},
 	};
 
 	// Add TLS options if needed
