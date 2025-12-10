@@ -146,7 +146,6 @@ async function startServer() {
 		const PORT = config.port;
 		const server = app.listen(PORT, "0.0.0.0", () => {
 			logger.info(`Server running on port ${PORT}`);
-			console.log(`Server running on port ${PORT}`);
 		});
 
 		// Start log cleanup job (runs daily)

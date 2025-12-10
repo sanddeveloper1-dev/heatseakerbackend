@@ -39,9 +39,11 @@ export async function storeLog(entry: LogEntry): Promise<void> {
     );
   } catch (error: any) {
     // Don't log errors about logging to avoid infinite loops
-    // Only log to console to avoid recursion
+    // Use a simple console.error as fallback since logger might cause recursion
     // Skip in test environment
     if (process.env.NODE_ENV !== "test" && !process.env.JEST_WORKER_ID) {
+      // Use console.error as last resort to avoid logger recursion
+      // This is acceptable here since it's a critical failure path
       console.error("Failed to store log in database:", error.message);
     }
   }

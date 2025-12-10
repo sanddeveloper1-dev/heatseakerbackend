@@ -47,10 +47,12 @@ const strictJwtAuth = (req: Request, res: Response, next: NextFunction): void =>
     req.user = decoded;
     next();
   } catch (error: any) {
+    // In production, don't expose detailed error messages to prevent information leakage
+    const isProduction = process.env.NODE_ENV === "production";
     res.status(401).json({
       success: false,
       message: "Unauthorized: Invalid or expired token",
-      error: error.message,
+      ...(isProduction ? {} : { error: error.message }), // Only include error details in non-production
     });
   }
 };
