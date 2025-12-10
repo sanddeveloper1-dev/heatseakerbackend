@@ -58,4 +58,15 @@ export default {
   logLevel: process.env.LOG_LEVEL || "info",
   // Log retention in days (default 90 days for maximum storage with negligible cost)
   logRetentionDays: Number(process.env.LOG_RETENTION_DAYS) || 90,
+  // Email configuration for daily reports
+  email: {
+    enabled: process.env.EMAIL_ENABLED === "true",
+    smtpHost: process.env.SMTP_HOST,
+    smtpPort: Number(process.env.SMTP_PORT) || 587,
+    smtpUser: process.env.SMTP_USER,
+    smtpPassword: process.env.SMTP_PASSWORD,
+    smtpSecure: process.env.SMTP_SECURE !== "false", // Default to true, set to "false" for non-SSL
+    fromAddress: process.env.EMAIL_FROM || process.env.SMTP_USER,
+    reportRecipient: process.env.REPORT_EMAIL_RECIPIENT || "alexmeyer@awmdevelopment.com",
+  },
 };

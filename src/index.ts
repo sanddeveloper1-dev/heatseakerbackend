@@ -41,7 +41,7 @@ app.use(
 		origin: config.uiOrigin,
 		credentials: true,
 		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-		allowedHeaders: ["Content-Type", "x-api-key"],
+		allowedHeaders: ["Content-Type", "x-api-key", "X-Source-Spreadsheet-URL", "x-source-spreadsheet-url"],
 	})
 );
 
@@ -57,10 +57,18 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 	// Log request start (only for non-health checks)
 	if (!isHealthCheck) {
-		logger.info(`[${requestId}] ${req.method} ${req.path}`, {
+		const logMeta: any = {
 			ip: req.ip,
 			userAgent: req.get("user-agent"),
-		});
+		};
+
+		// Capture X-Source-Spreadsheet-URL header if present
+		const spreadsheetUrl = req.get("x-source-spreadsheet-url") || req.get("X-Source-Spreadsheet-URL");
+		if (spreadsheetUrl) {
+			logMeta["x-source-spreadsheet-url"] = spreadsheetUrl;
+		}
+
+		logger.info(`[${requestId}] ${req.method} ${req.path}`, logMeta);
 	}
 
 	// Capture response finish
@@ -173,6 +181,19 @@ async function startServer() {
 		process.on("SIGINT", cleanup);
 
 		logger.info(`Log cleanup job scheduled (retention: ${config.logRetentionDays} days)`);
+
+		// Start daily report scheduler
+		const { scheduleDailyReport } = await import("./services/dailyReportScheduler");
+		const reportTask = scheduleDailyReport();
+
+		// Clean up report scheduler on graceful shutdown
+		const shutdown = () => {
+			cleanup();
+			reportTask.stop();
+			logger.info("Daily report scheduler stopped");
+		};
+		process.on("SIGTERM", shutdown);
+		process.on("SIGINT", shutdown);
 
 	} catch (error: any) {
 		logger.error("Failed to start server", { error: error.message });
