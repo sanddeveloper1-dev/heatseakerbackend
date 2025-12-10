@@ -172,25 +172,29 @@ async function startServer() {
 		const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 		const cleanupInterval = setInterval(runCleanup, ONE_DAY_MS);
 
-		// Clean up interval on graceful shutdown
-		const cleanup = () => {
-			clearInterval(cleanupInterval);
-			logger.info("Log cleanup job stopped");
-		};
-		process.on("SIGTERM", cleanup);
-		process.on("SIGINT", cleanup);
-
 		logger.info(`Log cleanup job scheduled (retention: ${config.logRetentionDays} days)`);
 
 		// Start daily report scheduler
 		const { scheduleDailyReport } = await import("./services/dailyReportScheduler");
 		const reportTask = scheduleDailyReport();
 
-		// Clean up report scheduler on graceful shutdown
-		const shutdown = () => {
-			cleanup();
-			reportTask.stop();
-			logger.info("Daily report scheduler stopped");
+		// Clean up interval and report scheduler on graceful shutdown
+		const shutdown = async () => {
+			try {
+				clearInterval(cleanupInterval);
+				reportTask.stop();
+				logger.info("Log cleanup job stopped");
+				logger.info("Daily report scheduler stopped");
+				
+				// Close database pool
+				const { closeDatabasePool } = await import("./config/database");
+				await closeDatabasePool();
+				
+				process.exit(0);
+			} catch (error: any) {
+				logger.error("Error during shutdown", { error: error.message });
+				process.exit(1);
+			}
 		};
 		process.on("SIGTERM", shutdown);
 		process.on("SIGINT", shutdown);
