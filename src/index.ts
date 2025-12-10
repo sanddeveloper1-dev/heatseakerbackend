@@ -165,7 +165,15 @@ async function startServer() {
 
 		// Schedule daily cleanup (every 24 hours)
 		const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-		setInterval(runCleanup, ONE_DAY_MS);
+		const cleanupInterval = setInterval(runCleanup, ONE_DAY_MS);
+
+		// Clean up interval on graceful shutdown
+		const cleanup = () => {
+			clearInterval(cleanupInterval);
+			logger.info("Log cleanup job stopped");
+		};
+		process.on("SIGTERM", cleanup);
+		process.on("SIGINT", cleanup);
 
 		logger.info(`Log cleanup job scheduled (retention: ${config.logRetentionDays} days)`);
 
