@@ -105,12 +105,23 @@ export async function getLogsFromDatabase(options?: {
 
     const result = await pool.query(query, params);
 
-    return result.rows.map((row) => ({
-      timestamp: row.timestamp,
-      level: row.level,
-      message: row.message,
-      meta: row.meta ? (typeof row.meta === "string" ? JSON.parse(row.meta) : row.meta) : undefined,
-    }));
+    return result.rows.map((row) => {
+      let meta: any = undefined;
+      if (row.meta) {
+        try {
+          meta = typeof row.meta === "string" ? JSON.parse(row.meta) : row.meta;
+        } catch (parseError) {
+          // If JSON parsing fails, store raw value with error indicator
+          meta = { _parseError: true, raw: row.meta };
+        }
+      }
+      return {
+        timestamp: row.timestamp,
+        level: row.level,
+        message: row.message,
+        meta,
+      };
+    });
   } catch (error: any) {
     logger.error("Failed to retrieve logs from database", { error: error.message });
     return [];

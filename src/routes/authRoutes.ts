@@ -13,6 +13,7 @@
  */
 
 import { Router, Request, Response } from "express";
+import rateLimit from "express-rate-limit";
 import bcrypt from "bcrypt";
 import config from "../config/config";
 import { generateJwt } from "../auth/jwtAuth";
@@ -22,11 +23,28 @@ import logger from "../config/logger";
 const router = Router();
 
 /**
+ * Rate limiter for login endpoint
+ * Limits to 5 attempts per 15 minutes per IP to prevent brute force attacks
+ */
+const loginRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 login requests per windowMs
+  message: {
+    success: false,
+    message: "Too many login attempts, please try again later.",
+  },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  skipSuccessfulRequests: true, // Don't count successful requests
+});
+
+/**
  * POST /api/auth/login
  * Admin login endpoint
  * Body: { username: string, password: string }
+ * Rate limited to 5 attempts per 15 minutes per IP
  */
-router.post("/login", async (req: Request, res: Response): Promise<void> => {
+router.post("/login", loginRateLimiter, async (req: Request, res: Response): Promise<void> => {
   try {
     const { username, password } = req.body;
 
