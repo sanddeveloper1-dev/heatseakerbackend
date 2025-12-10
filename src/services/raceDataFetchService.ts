@@ -38,6 +38,9 @@ export interface DailyRaceEntryRecord {
 	will_pay_1_p3?: string | null;
 	win_pool?: string | null;
 	veto_rating?: string | null;
+	purse?: string | null;
+	race_type?: string | null;
+	age?: string | null;
 	raw_data?: string | null;
 	source_file?: string | null;
 }
@@ -82,6 +85,9 @@ export const fetchDailyRaceEntries = async (date: string, trackCode?: string): P
 			re.will_pay_1_p3,
 			re.win_pool,
 			re.veto_rating,
+			re.purse,
+			re.race_type,
+			re.age,
 			re.raw_data,
 			re.source_file
 		FROM race_entries re
