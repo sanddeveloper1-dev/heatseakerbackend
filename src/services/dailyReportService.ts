@@ -131,7 +131,11 @@ async function getTrackStatistics(dateString: string): Promise<TrackStatistics[]
 			winners_added: parseInt(row.winners_added) || 0,
 		}));
 	} catch (error: any) {
-		logger.error("Error getting track statistics", { error: error.message, dateString });
+		logger.error("Error getting track statistics", {
+			error: error.message,
+			stack: error instanceof Error ? error.stack : undefined,
+			dateString,
+		});
 		throw error;
 	}
 }
@@ -207,16 +211,33 @@ async function getSpreadsheetApiCalls(startDate: Date, endDate: Date): Promise<S
 		}
 
 		// Convert to final format
-		return Array.from(spreadsheetMap.values()).map(item => ({
-			spreadsheet_url: item.spreadsheet_url,
-			track_code: item.track_code,
-			endpoint: item.endpoint,
-			call_count: item.calls.length,
-			first_call: new Date(Math.min(...item.calls.map(d => d.getTime()))),
-			last_call: new Date(Math.max(...item.calls.map(d => d.getTime()))),
-		}));
+		// Optimize date calculation: use single pass to find min/max instead of spread operator
+		return Array.from(spreadsheetMap.values()).map(item => {
+			// Single pass to find min and max timestamps (more efficient than Math.min/max with spread)
+			let minTime = Infinity;
+			let maxTime = -Infinity;
+			for (const callDate of item.calls) {
+				const time = callDate.getTime();
+				if (time < minTime) minTime = time;
+				if (time > maxTime) maxTime = time;
+			}
+
+			return {
+				spreadsheet_url: item.spreadsheet_url,
+				track_code: item.track_code,
+				endpoint: item.endpoint,
+				call_count: item.calls.length,
+				first_call: new Date(minTime),
+				last_call: new Date(maxTime),
+			};
+		});
 	} catch (error: any) {
-		logger.error("Error getting spreadsheet API calls", { error: error.message });
+		logger.error("Error getting spreadsheet API calls", {
+			error: error.message,
+			stack: error instanceof Error ? error.stack : undefined,
+			startDate: startDate.toISOString(),
+			endDate: endDate.toISOString(),
+		});
 		throw error;
 	}
 }
@@ -257,7 +278,12 @@ async function getErrorSummary(startDate: Date, endDate: Date): Promise<ErrorSum
 			error_breakdown: errorBreakdown.slice(0, 10), // Top 10 errors
 		};
 	} catch (error: any) {
-		logger.error("Error getting error summary", { error: error.message });
+		logger.error("Error getting error summary", {
+			error: error.message,
+			stack: error instanceof Error ? error.stack : undefined,
+			startDate: startDate.toISOString(),
+			endDate: endDate.toISOString(),
+		});
 		throw error;
 	}
 }
@@ -291,7 +317,10 @@ export async function generateDailyReport(): Promise<DailyReportData> {
 			error_summary: errorSummary,
 		};
 	} catch (error: any) {
-		logger.error("Error generating daily report", { error: error.message });
+		logger.error("Error generating daily report", {
+			error: error.message,
+			stack: error instanceof Error ? error.stack : undefined,
+		});
 		throw error;
 	}
 }

@@ -179,7 +179,16 @@ async function startServer() {
 		const reportTask = scheduleDailyReport();
 
 		// Clean up interval and report scheduler on graceful shutdown
+		// Use a guard to prevent multiple executions if signals fire rapidly
+		let isShuttingDown = false;
 		const shutdown = async () => {
+			// Prevent multiple shutdown executions
+			if (isShuttingDown) {
+				logger.warn("Shutdown already in progress, ignoring duplicate signal");
+				return;
+			}
+			isShuttingDown = true;
+
 			try {
 				clearInterval(cleanupInterval);
 				reportTask.stop();
@@ -204,6 +213,27 @@ async function startServer() {
 		process.exit(1);
 	}
 }
+
+// Handle unhandled promise rejections to prevent crashes
+process.on("unhandledRejection", (reason: any, promise: Promise<any>) => {
+	logger.error("Unhandled Promise Rejection", {
+		reason: reason instanceof Error ? reason.message : String(reason),
+		stack: reason instanceof Error ? reason.stack : undefined,
+		promise: promise.toString(),
+	});
+	// Don't exit - log and continue (production best practice)
+	// In some cases you may want to exit, but for a production server, logging is better
+});
+
+// Handle uncaught exceptions
+process.on("uncaughtException", (error: Error) => {
+	logger.error("Uncaught Exception", {
+		message: error.message,
+		stack: error.stack,
+	});
+	// For uncaught exceptions, we should exit after logging
+	process.exit(1);
+});
 
 // Start the server
 startServer();

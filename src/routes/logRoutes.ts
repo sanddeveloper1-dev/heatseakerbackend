@@ -13,10 +13,24 @@
  */
 
 import { Router, Request, Response } from "express";
+import rateLimit from "express-rate-limit";
 import apiKeyAuth from "../middleware/apiKeyAuth";
 import { getLogs } from "../config/logger";
 
 const router = Router();
+
+// Rate limiting for log endpoint to prevent abuse
+// Allow 100 requests per 15 minutes per IP
+const logRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: {
+    success: false,
+    message: "Too many requests, please try again later.",
+  },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
 
 /**
  * GET /api/logs
@@ -28,7 +42,7 @@ const router = Router();
  * - limit: optional, number (default 100, max 500)
  * - search: optional, string to filter by message substring
  */
-router.get("/", apiKeyAuth, async (req: Request, res: Response): Promise<void> => {
+router.get("/", logRateLimiter, apiKeyAuth, async (req: Request, res: Response): Promise<void> => {
   try {
     const level = req.query.level as "info" | "warn" | "error" | "debug" | undefined;
     const limitParam = req.query.limit as string | undefined;
