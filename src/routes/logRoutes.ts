@@ -28,7 +28,7 @@ const router = Router();
  * - limit: optional, number (default 100, max 500)
  * - search: optional, string to filter by message substring
  */
-router.get("/", strictJwtAuth, (req: Request, res: Response): void => {
+router.get("/", strictJwtAuth, async (req: Request, res: Response): Promise<void> => {
   try {
     const level = req.query.level as "info" | "warn" | "error" | "debug" | undefined;
     const limitParam = req.query.limit as string | undefined;
@@ -52,8 +52,8 @@ router.get("/", strictJwtAuth, (req: Request, res: Response): void => {
       return;
     }
 
-    // Get filtered logs
-    const logs = getLogs({
+    // Get filtered logs (now async - queries both DB and in-memory buffer)
+    const logs = await getLogs({
       level,
       limit,
       search,

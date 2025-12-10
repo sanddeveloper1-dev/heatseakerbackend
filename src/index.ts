@@ -149,6 +149,26 @@ async function startServer() {
 			console.log(`Server running on port ${PORT}`);
 		});
 
+		// Start log cleanup job (runs daily)
+		// Clean up old logs beyond retention period
+		const { cleanupOldLogs } = await import("./services/logStorageService");
+		const runCleanup = async () => {
+			try {
+				await cleanupOldLogs(config.logRetentionDays);
+			} catch (error: any) {
+				logger.error("Log cleanup job failed", { error: error.message });
+			}
+		};
+
+		// Run cleanup immediately on startup (in case server was down for a while)
+		runCleanup();
+
+		// Schedule daily cleanup (every 24 hours)
+		const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+		setInterval(runCleanup, ONE_DAY_MS);
+
+		logger.info(`Log cleanup job scheduled (retention: ${config.logRetentionDays} days)`);
+
 	} catch (error: any) {
 		logger.error("Failed to start server", { error: error.message });
 		process.exit(1);

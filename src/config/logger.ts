@@ -14,6 +14,7 @@
 
 import winston from "winston";
 import config from "./config";
+import { storeLog } from "../services/logStorageService";
 
 export interface LogEntry {
   timestamp: string;
@@ -27,7 +28,7 @@ const MAX_LOG_BUFFER_SIZE = 1000;
 const logBuffer: LogEntry[] = [];
 
 /**
- * Add a log entry to the in-memory ring buffer
+ * Add a log entry to the in-memory ring buffer and database (async, non-blocking)
  */
 function addToBuffer(level: LogEntry["level"], message: string, meta?: any): void {
   const entry: LogEntry = {
@@ -37,12 +38,20 @@ function addToBuffer(level: LogEntry["level"], message: string, meta?: any): voi
     meta: meta ? (typeof meta === "object" ? meta : { data: meta }) : undefined,
   };
 
+  // Add to in-memory buffer (fast access)
   logBuffer.push(entry);
 
   // Remove oldest entries if buffer exceeds max size
   if (logBuffer.length > MAX_LOG_BUFFER_SIZE) {
     logBuffer.shift();
   }
+
+  // Store in database asynchronously (non-blocking, fire-and-forget)
+  // Don't await to avoid blocking the logging operation
+  storeLog(entry).catch(() => {
+    // Silently fail - database write errors are already handled in storeLog
+    // We don't want logging failures to break the application
+  });
 }
 
 const logger = winston.createLogger({
@@ -95,36 +104,87 @@ logger.debug = ((messageOrInfoObject: any, ...args: any[]) => {
 }) as typeof logger.debug;
 
 /**
- * Get logs from the in-memory buffer with optional filtering
+ * Get logs from both in-memory buffer and database with optional filtering
+ * Merges results from both sources, prioritizing recent logs
  */
-export function getLogs(options?: {
+export async function getLogs(options?: {
   level?: "info" | "warn" | "error" | "debug";
   limit?: number;
   search?: string;
-}): LogEntry[] {
-  let filtered = [...logBuffer];
-
-  // Filter by level
-  if (options?.level) {
-    filtered = filtered.filter((entry) => entry.level === options.level);
-  }
-
-  // Filter by search string (case-insensitive)
-  if (options?.search) {
-    const searchLower = options.search.toLowerCase();
-    filtered = filtered.filter(
-      (entry) =>
-        entry.message.toLowerCase().includes(searchLower) ||
-        JSON.stringify(entry.meta || {}).toLowerCase().includes(searchLower)
-    );
-  }
-
-  // Sort by timestamp descending (latest first)
-  filtered.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-
-  // Apply limit (default 100, max 500)
+}): Promise<LogEntry[]> {
   const limit = Math.min(options?.limit || 100, 500);
-  return filtered.slice(0, limit);
+
+  try {
+    // Get logs from database (historical logs)
+    const { getLogsFromDatabase } = await import("../services/logStorageService");
+    const dbLogs = await getLogsFromDatabase({
+      level: options?.level,
+      limit: limit * 2, // Get more from DB to account for potential duplicates
+      search: options?.search,
+    });
+
+    // Get logs from in-memory buffer (recent logs)
+    let bufferLogs = [...logBuffer];
+
+    // Filter in-memory buffer by level
+    if (options?.level) {
+      bufferLogs = bufferLogs.filter((entry) => entry.level === options.level);
+    }
+
+    // Filter in-memory buffer by search string (case-insensitive)
+    if (options?.search) {
+      const searchLower = options.search.toLowerCase();
+      bufferLogs = bufferLogs.filter(
+        (entry) =>
+          entry.message.toLowerCase().includes(searchLower) ||
+          JSON.stringify(entry.meta || {}).toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Merge logs from both sources, removing duplicates by timestamp + message
+    const logMap = new Map<string, LogEntry>();
+
+    // Add database logs first (older)
+    for (const log of dbLogs) {
+      const key = `${log.timestamp}_${log.message}`;
+      if (!logMap.has(key)) {
+        logMap.set(key, log);
+      }
+    }
+
+    // Add in-memory buffer logs (newer, will overwrite duplicates)
+    for (const log of bufferLogs) {
+      const key = `${log.timestamp}_${log.message}`;
+      logMap.set(key, log);
+    }
+
+    // Convert map to array and sort by timestamp descending (latest first)
+    const mergedLogs = Array.from(logMap.values()).sort(
+      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
+
+    // Apply limit
+    return mergedLogs.slice(0, limit);
+  } catch (error: any) {
+    // If database query fails, fall back to in-memory buffer only
+    let filtered = [...logBuffer];
+
+    if (options?.level) {
+      filtered = filtered.filter((entry) => entry.level === options.level);
+    }
+
+    if (options?.search) {
+      const searchLower = options.search.toLowerCase();
+      filtered = filtered.filter(
+        (entry) =>
+          entry.message.toLowerCase().includes(searchLower) ||
+          JSON.stringify(entry.meta || {}).toLowerCase().includes(searchLower)
+      );
+    }
+
+    filtered.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    return filtered.slice(0, limit);
+  }
 }
 
 export default logger;

@@ -36,4 +36,6 @@ export default {
   adminPasswordHash: process.env.ADMIN_PASSWORD_HASH,
   jwtSecret: process.env.JWT_SECRET || process.env.SESSION_SECRET,
   logLevel: process.env.LOG_LEVEL || "info",
+  // Log retention in days (default 90 days for maximum storage with negligible cost)
+  logRetentionDays: Number(process.env.LOG_RETENTION_DAYS) || 90,
 };
