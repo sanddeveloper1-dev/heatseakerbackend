@@ -8,12 +8,13 @@
 - [Architecture](#architecture)
 - [Features](#features)
 - [API Endpoints](#api-endpoints)
+- [Authentication](#authentication)
 - [Database Schema](#database-schema)
-- [Transaction Support](#transaction-support)
 - [Installation & Setup](#installation--setup)
 - [Configuration](#configuration)
-- [Testing](#testing)
+- [Daily Reports](#daily-reports)
 - [Deployment](#deployment)
+- [Testing](#testing)
 - [Development](#development)
 - [Troubleshooting](#troubleshooting)
 
@@ -24,20 +25,23 @@ HeatSeaker Backend is a commercial-grade betting platform backend that provides:
 - **Race Data Ingestion**: Process and store horse racing data from multiple sources
 - **Bet Management**: Handle betting operations with XpressBet integration
 - **Transaction Support**: Robust database operations with rollback capabilities
-- **Migration System**: Version-controlled database schema management
+- **Logging System**: Comprehensive application logging with database persistence
+- **Daily Reports**: Automated daily email reports on data ingestion and API usage
 - **Health Monitoring**: Comprehensive system and database health checks
 - **API Gateway**: RESTful endpoints for all betting operations
 
 ## 🏗️ Architecture
 
 ### **Technology Stack**
-- **Runtime**: Node.js with TypeScript
+- **Runtime**: Node.js 18+ with TypeScript
 - **Framework**: Express.js
 - **Database**: PostgreSQL with connection pooling
 - **Testing**: Jest with comprehensive mocking
-- **Logging**: Winston with structured logging
+- **Logging**: Winston with structured logging and database persistence
 - **Validation**: Joi schema validation
 - **File Processing**: XLSX for Excel operations, CSV generation
+- **Email**: Nodemailer for SMTP email delivery
+- **Scheduling**: Node-cron for scheduled jobs
 
 ### **System Architecture**
 ```
@@ -54,8 +58,8 @@ HeatSeaker Backend is a commercial-grade betting platform backend that provides:
          │                       │                       │
          ▼                       ▼                       ▼
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Database     │    │  Migration      │    │  File Storage   │
-│   (PostgreSQL) │    │   Manager       │    │   (CSV/XLSX)    │
+│   Database     │    │  Logging       │    │  Daily Reports  │
+│   (PostgreSQL) │    │   (Winston)    │    │   (Email)       │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
@@ -72,8 +76,10 @@ HeatSeaker Backend is a commercial-grade betting platform backend that provides:
 - **Transaction Support**: ACID-compliant database operations
 - **Migration System**: Version-controlled schema changes
 - **Health Monitoring**: Real-time system and database health checks
-- **Audit Logging**: Comprehensive operation tracking
+- **Audit Logging**: Comprehensive operation tracking with database persistence
 - **Rollback Capabilities**: Database operation rollback support
+- **Daily Reports**: Automated email reports on data ingestion and API usage
+- **Spreadsheet Tracking**: Track which spreadsheets are making API calls
 
 ## 🌐 API Endpoints
 
@@ -90,14 +96,45 @@ POST /api/submit-bets - Submit betting slips
 
 ### **Race Management**
 ```
-POST /api/races/ingest - Ingest race data
-GET  /api/races        - Retrieve race information
-GET  /api/races/entries/daily?date=YYYY-MM-DD - Fetch all race entries for the specified date
-GET  /api/races/winners/daily?date=YYYY-MM-DD - Fetch race winners for the specified date
+POST /api/races/daily                    - Ingest daily race data
+GET  /api/races/tracks                   - Get all tracks
+GET  /api/races?startDate=X&endDate=Y    - Get races by date range
+GET  /api/races/:id                      - Get specific race with entries
+GET  /api/races/:id/winner               - Get winner for specific race
+GET  /api/races/winners                  - Get winners by date range
+GET  /api/races/winners/track/:trackId   - Get winners by track
+GET  /api/races/entries/daily?date=X     - Get all race entries for a date
+GET  /api/races/winners/daily?date=X     - Get winners for a date
+```
+
+### **Logging**
+```
+GET  /api/logs        - Get application logs (with optional filtering)
 ```
 
 ### **API Authentication**
-All endpoints require a valid API key passed in the `X-API-Key` header.
+All protected endpoints require a valid API key passed in the `x-api-key` header.
+
+**Example:**
+```bash
+curl -H "x-api-key: your-api-key" https://your-api.com/api/races
+```
+
+## 🔐 Authentication
+
+### **API Key Authentication**
+The system uses **API key authentication only** for all protected endpoints. All endpoints that previously used API keys continue to work exactly as before.
+
+**Status Codes:**
+- `403 Forbidden`: Missing or invalid API key
+- Error messages: "Forbidden: No API key provided" / "Forbidden: Invalid API key"
+
+**Protected Endpoints:**
+- All `/api/*` endpoints (except public health checks)
+- All endpoints use the same `x-api-key` header format
+
+**Backward Compatibility:**
+✅ All existing API key-based clients continue to work without any changes.
 
 ## 🗄️ Database Schema
 
@@ -123,10 +160,6 @@ CREATE TABLE races (
   date DATE NOT NULL,
   race_number INTEGER NOT NULL,
   post_time TIME,
-  prev_race_1_winner_horse_number INTEGER,
-  prev_race_1_winner_payout DECIMAL(10,2),
-  prev_race_2_winner_horse_number INTEGER,
-  prev_race_2_winner_payout DECIMAL(10,2),
   source_file VARCHAR(255),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -141,7 +174,8 @@ CREATE TABLE race_entries (
   horse_number INTEGER NOT NULL,
   double DECIMAL(5,2),
   constant DECIMAL(5,2),
-  p3 DECIMAL(5,2),
+  p3 VARCHAR(50),
+  correct_p3 DECIMAL(5,2),
   ml DECIMAL(5,2),
   live_odds DECIMAL(5,2),
   sharp_percent VARCHAR(20),
@@ -150,95 +184,51 @@ CREATE TABLE race_entries (
   p3_delta DECIMAL(5,2),
   x_figure DECIMAL(5,2),
   will_pay_2 VARCHAR(50),
+  will_pay VARCHAR(50),
   will_pay_1_p3 VARCHAR(50),
   win_pool VARCHAR(50),
   veto_rating VARCHAR(50),
+  purse VARCHAR(50),
+  race_type VARCHAR(50),
+  age VARCHAR(50),
   raw_data TEXT,
+  source_file VARCHAR(255),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
-#### **Migrations Table**
+#### **Race Winners Table**
 ```sql
-CREATE TABLE migrations (
+CREATE TABLE race_winners (
   id SERIAL PRIMARY KEY,
-  version VARCHAR(50) UNIQUE NOT NULL,
-  description TEXT NOT NULL,
-  applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  checksum VARCHAR(64) NOT NULL,
-  execution_time_ms INTEGER,
-  status VARCHAR(20) DEFAULT 'success'
+  race_id VARCHAR(50) UNIQUE REFERENCES races(id),
+  winning_horse_number INTEGER NOT NULL,
+  winning_payout_2_dollar DECIMAL(10,2),
+  winning_payout_1_p3 DECIMAL(10,2),
+  extraction_method VARCHAR(50),
+  extraction_confidence VARCHAR(20),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
-## 🔄 Transaction Support
-
-### **Overview**
-The application implements comprehensive transaction support to ensure data integrity across all database operations. This is particularly critical for betting operations where multiple related records must be created or updated atomically.
-
-### **Transaction Implementation**
-
-#### **1. Connection Pool Management**
-```typescript
-// Get a client from the pool for transaction management
-const client = await pool.connect();
-try {
-  await client.query('BEGIN');
-  // ... perform operations ...
-  await client.query('COMMIT');
-} catch (error) {
-  await client.query('ROLLBACK');
-  throw error;
-} finally {
-  client.release();
-}
+#### **Logs Table**
+```sql
+CREATE TABLE logs (
+  id SERIAL PRIMARY KEY,
+  timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  level VARCHAR(10) NOT NULL CHECK (level IN ('info', 'warn', 'error', 'debug')),
+  message TEXT NOT NULL,
+  meta JSONB,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 ```
-
-#### **2. Model-Level Transaction Support**
-All models provide both standard and transaction-aware methods:
-
-```typescript
-// Standard method (auto-commits)
-await TrackModel.create(trackData);
-
-// Transaction-aware method (part of larger transaction)
-await TrackModel.createWithClient(client, trackData);
-```
-
-#### **3. Race Ingestion Transactions**
-Race data ingestion uses transactions to ensure all related data is stored consistently:
-
-```typescript
-// Process races with transaction support
-const results = await this.processRacesWithTransaction(races, source);
-```
-
-#### **4. Bet Processing Transactions**
-Bet processing ensures file generation and database updates are atomic:
-
-```typescript
-// Generate CSV file and update database within transaction
-const filePath = createBetCsv(bets, betType);
-const result = await placeBet(trackCode, betType, raceNumber, filePath, bets);
-```
-
-### **Transaction Benefits**
-- **Data Consistency**: Related operations succeed or fail together
-- **Rollback Capability**: Failed operations can be undone
-- **Performance**: Reduced round-trips to database
-- **Reliability**: Better error handling and recovery
-
-### **Transaction Safety**
-- **Automatic Rollback**: Failed transactions are automatically rolled back
-- **Connection Management**: Proper connection release in all scenarios
-- **Error Propagation**: Errors are properly logged and propagated
-- **Resource Cleanup**: File system resources are cleaned up on failure
 
 ## 🚀 Installation & Setup
 
 ### **Prerequisites**
-- Node.js 18+ 
+- Node.js 18+
 - PostgreSQL 12+
 - Yarn package manager
 
@@ -256,68 +246,224 @@ cp .env.example .env
 # Edit .env with your configuration
 
 # Run database migrations
-yarn migrate
+# The logs table migration is at: src/migrations/create_logs_table.sql
 
 # Start the application
 yarn dev
 ```
 
+## ⚙️ Configuration
+
 ### **Environment Variables**
+
+#### **Required Configuration**
 ```bash
+# API Security (CRITICAL - Required)
+API_KEY=your-secure-api-key-here
+
 # Database Configuration
-DATABASE_URL=postgresql://username:password@localhost:5432/heatseaker
-DATABASE_HOST=localhost
-DATABASE_PORT=5432
-DATABASE_NAME=heatseaker
-DATABASE_USER=username
-DATABASE_PASSWORD=password
+DATABASE_URL=postgresql://username:password@host:port/database
+DB_SSL_REJECT_UNAUTHORIZED=true  # Set to "false" only if needed
 
-# Application Configuration
+# Server Configuration
 PORT=8080
-NODE_ENV=development
-LOG_LEVEL=info
+NODE_ENV=production  # or development
 
-# API Configuration
-API_KEY=your-secret-api-key
+# Logging
+LOG_LEVEL=info  # debug, info, warn, error
+LOG_RETENTION_DAYS=90  # Log retention period in days
 ```
 
-## ⚙️ Configuration
+#### **CORS Configuration**
+```bash
+# CORS origin for frontend (defaults to http://localhost:3000)
+UI_ORIGIN=https://your-frontend-domain.com
+```
+
+#### **Email Configuration (for Daily Reports)**
+```bash
+# Enable/disable email sending
+EMAIL_ENABLED=true
+
+# SMTP Configuration
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASSWORD=your-app-password  # For Gmail: Use App Password
+SMTP_SECURE=true
+EMAIL_FROM=your-email@gmail.com
+REPORT_EMAIL_RECIPIENT=alexmeyer@awmdevelopment.com
+```
+
+### **Gmail SMTP Setup**
+
+For Gmail, you need to:
+
+1. **Enable 2-Factor Authentication**: https://myaccount.google.com/security
+2. **Generate App Password**: https://myaccount.google.com/apppasswords
+   - Select "Mail" and "Other (Custom name)"
+   - Enter name like "HeatSeaker Daily Reports"
+   - Copy the 16-character password
+3. **Use App Password**: Set `SMTP_PASSWORD` to the App Password (not your regular password)
+
+### **SMTP Configuration Examples**
+
+#### **Gmail**
+```env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=true
+SMTP_USER=your-email@gmail.com
+SMTP_PASSWORD=xxxx xxxx xxxx xxxx  # 16-char App Password
+```
+
+#### **SendGrid**
+```env
+SMTP_HOST=smtp.sendgrid.net
+SMTP_PORT=587
+SMTP_SECURE=true
+SMTP_USER=apikey
+SMTP_PASSWORD=SG.your-sendgrid-api-key
+```
+
+#### **Other Providers**
+- **Outlook/Hotmail**: `smtp-mail.outlook.com:587`
+- **Yahoo**: `smtp.mail.yahoo.com:587`
 
 ### **Database Configuration**
 The application uses a connection pool for optimal database performance:
-
-```typescript
-// src/config/database.ts
-const pool = new Pool({
-  host: config.database.host,
-  port: config.database.port,
-  database: config.database.name,
-  user: config.database.user,
-  password: config.database.password,
-  max: 20, // Maximum connections
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-});
-```
+- Maximum connections: 20
+- Idle timeout: 30 seconds
+- Connection timeout: 2 seconds
 
 ### **Logging Configuration**
-Structured logging with Winston:
+- Structured logging with Winston
+- Logs stored in database with 90-day retention (configurable)
+- In-memory buffer for recent logs
+- Automatic cleanup of old logs
+
+## 📧 Daily Reports
+
+### **Overview**
+The system automatically generates and emails a comprehensive daily report at **9am Mountain Time** each day. The report includes:
+
+1. **Tracks Ingested**: Tracks that ran the previous day with statistics
+   - Races run
+   - Races added to database
+   - Entries added to database
+   - Winners added to database
+
+2. **Spreadsheet API Calls**: Tracks that retrieved data with links to spreadsheets
+   - Spreadsheet URL (clickable link)
+   - Track code (if available)
+   - API endpoint called
+   - Number of calls made
+   - First and last call timestamps
+
+3. **Error Summary**: Error analysis
+   - Total error count
+   - Number of unique error types
+   - Most common error message
+   - Top 10 error breakdown
+
+### **Spreadsheet Integration**
+To track which spreadsheets are making API calls, include the `X-Source-Spreadsheet-URL` header in requests.
+
+#### **Google Apps Script Example**
+```javascript
+function fetchRaceData() {
+  const url = 'https://your-api.com/api/races';
+  const spreadsheetUrl = SpreadsheetApp.getActiveSpreadsheet().getUrl();
+  
+  const options = {
+    'method': 'get',
+    'headers': {
+      'x-api-key': 'your-api-key',
+      'X-Source-Spreadsheet-URL': spreadsheetUrl
+    }
+  };
+  
+  const response = UrlFetchApp.fetch(url, options);
+  const data = JSON.parse(response.getContentText());
+}
+```
+
+#### **Excel/VBA Example**
+```vba
+Sub FetchRaceData()
+    Dim http As Object
+    Set http = CreateObject("MSXML2.XMLHTTP")
+    
+    http.Open "GET", "https://your-api.com/api/races", False
+    http.setRequestHeader "x-api-key", "your-api-key"
+    http.setRequestHeader "X-Source-Spreadsheet-URL", ThisWorkbook.FullName
+    http.send
+End Sub
+```
+
+### **Schedule**
+- Runs daily at **9am Mountain Time** (approximately 4pm UTC)
+- Uses node-cron for scheduling
+- Automatically starts with the application
+
+### **Manual Testing**
+To manually trigger a daily report for testing, you can create a test endpoint or import the function:
 
 ```typescript
-// src/config/logger.ts
-const logger = winston.createLogger({
-  level: config.logLevel,
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  ),
-  transports: [
-    new winston.transports.Console(),
-    new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'logs/combined.log' })
-  ]
-});
+import { triggerDailyReport } from './services/dailyReportScheduler';
+await triggerDailyReport();
 ```
+
+## 🚀 Deployment
+
+### **GitHub Secrets for Production**
+
+For production deployments via GitHub Actions, add these secrets to your repository:
+
+**Settings** → **Secrets and variables** → **Actions** → **New repository secret**
+
+#### **Required Secrets**
+- `API_KEY` - Your secure API key
+- `DATABASE_URL` - PostgreSQL connection string
+- `DB_SSL_REJECT_UNAUTHORIZED` - `true` or `false`
+- `LOG_LEVEL` - `info`, `warn`, `error`, etc.
+
+#### **Email Secrets (for Daily Reports)**
+- `EMAIL_ENABLED` - `true` or `false`
+- `SMTP_HOST` - SMTP server hostname
+- `SMTP_PORT` - SMTP port (usually `587`)
+- `SMTP_USER` - SMTP username/email
+- `SMTP_PASSWORD` - SMTP password/API key
+- `SMTP_SECURE` - `true` or `false`
+- `EMAIL_FROM` - Email address to send from
+- `REPORT_EMAIL_RECIPIENT` - Email address to receive reports
+
+### **Docker Deployment**
+```bash
+# Build Docker image
+yarn build:local
+
+# Run locally
+yarn start:local
+
+# Deploy to AWS
+yarn deploy
+```
+
+### **AWS Deployment**
+The application includes AWS deployment configuration:
+- `Dockerrun.aws.json` - Elastic Beanstalk configuration
+- `.github/workflows/deploy.yml` - GitHub Actions deployment workflow
+- ECR integration for container registry
+- Automatic deployment to EC2 on push to `main`
+
+### **Deployment Process**
+1. Push to `main` branch
+2. GitHub Actions builds Docker image
+3. Image pushed to ECR
+4. Image deployed to EC2 instance
+5. Environment variables from GitHub Secrets injected
+6. Application starts automatically
 
 ## 🧪 Testing
 
@@ -327,6 +473,7 @@ src/__tests__/
 ├── controllers/          # Controller tests
 ├── routes/              # Route tests  
 ├── services/            # Service tests
+├── models/              # Model tests
 └── utils/               # Utility function tests
 ```
 
@@ -354,31 +501,7 @@ Current test coverage: **71.73%**
 - **External APIs**: Mocked HTTP responses
 - **File System**: Mocked file operations
 - **Models**: Mocked database model methods
-
-## 🚀 Deployment
-
-### **Docker Deployment**
-```bash
-# Build Docker image
-yarn build:local
-
-# Run locally
-yarn start:local
-
-# Deploy to AWS
-yarn deploy
-```
-
-### **AWS Deployment**
-The application includes AWS deployment configuration:
-- `Dockerrun.aws.json` - Elastic Beanstalk configuration
-- `deploy-ec2.sh` - Deployment script
-- ECR integration for container registry
-
-### **Environment-Specific Configs**
-- **Development**: Local database, debug logging
-- **Staging**: Staging database, info logging
-- **Production**: Production database, error logging only
+- **Logging**: Mocked log storage service
 
 ## 👨‍💻 Development
 
@@ -391,6 +514,11 @@ src/
 ├── models/              # Database models
 ├── routes/              # API route definitions
 ├── services/            # Business logic
+│   ├── dailyReportService.ts      # Daily report generation
+│   ├── dailyReportScheduler.ts    # Scheduled job
+│   ├── emailService.ts            # Email sending
+│   ├── logStorageService.ts       # Log persistence
+│   └── ...
 ├── types/               # TypeScript type definitions
 ├── utils/               # Utility functions
 └── validators/          # Input validation schemas
@@ -405,7 +533,6 @@ src/
 ### **Code Quality**
 - **TypeScript**: Strict type checking enabled
 - **ESLint**: Code style and quality enforcement
-- **Prettier**: Code formatting
 - **Git Hooks**: Pre-commit validation
 
 ## 🔧 Troubleshooting
@@ -421,20 +548,29 @@ curl http://localhost:8080/health/db
 tail -f logs/combined.log | grep "database"
 ```
 
-#### **Migration Issues**
-```bash
-# Check migration status
-yarn migrate:status
-
-# Run migrations manually
-yarn migrate:run
-```
-
 #### **API Key Issues**
 ```bash
 # Verify API key is set
-curl -H "X-API-Key: your-key" http://localhost:8080/health
+curl -H "x-api-key: your-key" http://localhost:8080/health
 ```
+
+#### **Email Not Sending**
+1. Check `EMAIL_ENABLED=true` in environment
+2. Verify SMTP credentials are correct
+3. For Gmail: Ensure you're using an App Password (not regular password)
+4. Check application logs for SMTP errors
+5. Verify firewall allows SMTP port (587/465)
+
+#### **Daily Report Issues**
+1. Check logs for: `"Daily report job scheduled successfully"`
+2. Verify email configuration is correct
+3. Check that data exists for the previous day
+4. Verify spreadsheet URLs are being captured in logs
+
+#### **Spreadsheet URLs Not Appearing**
+1. Ensure spreadsheets include `X-Source-Spreadsheet-URL` header
+2. Verify CORS allows the header (already configured)
+3. Check logs contain the header in metadata
 
 ### **Log Analysis**
 The application provides structured logging for easy debugging:
@@ -443,9 +579,12 @@ The application provides structured logging for easy debugging:
 {
   "level": "error",
   "message": "Database connection failed",
-  "timestamp": "2025-08-17T02:36:49.645Z",
+  "timestamp": "2025-01-27T10:00:00.000Z",
   "error": "Connection refused",
-  "context": "database connection"
+  "meta": {
+    "ip": "127.0.0.1",
+    "userAgent": "curl/7.68.0"
+  }
 }
 ```
 
@@ -457,11 +596,8 @@ The application provides structured logging for easy debugging:
 
 ## 📚 Additional Documentation
 
-- [Environment Setup Guide](ENVIRONMENT_SETUP.md)
-- [Migration Checklist](MIGRATION_CHECKLIST.md)
-- [Race API Documentation](RACE_API_README.md)
-- [Service Agreement](SERVICE_AGREEMENT.md)
-- [Contractor Agreement](CONTRACTOR_AGREEMENT.md)
+- [Service Agreement](SERVICE_AGREEMENT.md) - Legal terms and liability framework
+- [Contractor Agreement](CONTRACTOR_AGREEMENT.md) - Contractor service agreement
 
 ## 🤝 Contributing
 
