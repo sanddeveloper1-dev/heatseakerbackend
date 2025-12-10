@@ -13,7 +13,7 @@
  */
 
 import { Router, Request, Response } from "express";
-import strictJwtAuth from "../middleware/strictJwtAuth";
+import apiKeyAuth from "../middleware/apiKeyAuth";
 import { getLogs } from "../config/logger";
 
 const router = Router();
@@ -21,14 +21,14 @@ const router = Router();
 /**
  * GET /api/logs
  * Get application logs with optional filtering
- * Protected by strict JWT auth (admin only)
+ * Protected by API key authentication
  * 
  * Query parameters:
  * - level: optional, "info" | "warn" | "error" | "debug"
  * - limit: optional, number (default 100, max 500)
  * - search: optional, string to filter by message substring
  */
-router.get("/", strictJwtAuth, async (req: Request, res: Response): Promise<void> => {
+router.get("/", apiKeyAuth, async (req: Request, res: Response): Promise<void> => {
   try {
     const level = req.query.level as "info" | "warn" | "error" | "debug" | undefined;
     const limitParam = req.query.limit as string | undefined;

@@ -28,7 +28,7 @@ jest.mock("../../config/logger", () => ({
   getLogs: jest.fn(),
 }));
 
-// Note: strictJwtAuth is mocked in setup.ts
+// Note: apiKeyAuth is mocked in setup.ts
 
 const app = express();
 app.use(express.json());
@@ -59,7 +59,7 @@ describe("Log Routes", () => {
 
       const response = await request(app)
         .get("/api/logs")
-        .set("Authorization", "Bearer test-token");
+        .set("x-api-key", "test-api-key");
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -73,7 +73,7 @@ describe("Log Routes", () => {
 
       const response = await request(app)
         .get("/api/logs?level=error")
-        .set("Authorization", "Bearer test-token");
+        .set("x-api-key", "test-api-key");
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -87,7 +87,7 @@ describe("Log Routes", () => {
 
       const response = await request(app)
         .get("/api/logs?search=Test")
-        .set("Authorization", "Bearer test-token");
+        .set("x-api-key", "test-api-key");
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -100,7 +100,7 @@ describe("Log Routes", () => {
 
       const response = await request(app)
         .get("/api/logs?limit=1")
-        .set("Authorization", "Bearer test-token");
+        .set("x-api-key", "test-api-key");
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -112,7 +112,7 @@ describe("Log Routes", () => {
 
       const response = await request(app)
         .get("/api/logs?level=error&search=Error&limit=10")
-        .set("Authorization", "Bearer test-token");
+        .set("x-api-key", "test-api-key");
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -126,7 +126,7 @@ describe("Log Routes", () => {
     it("should return 400 for invalid level parameter", async () => {
       const response = await request(app)
         .get("/api/logs?level=invalid")
-        .set("Authorization", "Bearer test-token");
+        .set("x-api-key", "test-api-key");
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
@@ -139,7 +139,7 @@ describe("Log Routes", () => {
 
       const response = await request(app)
         .get("/api/logs")
-        .set("Authorization", "Bearer test-token");
+        .set("x-api-key", "test-api-key");
 
       expect(response.status).toBe(500);
       expect(response.body.success).toBe(false);
@@ -151,7 +151,7 @@ describe("Log Routes", () => {
 
       const response = await request(app)
         .get("/api/logs?limit=1000")
-        .set("Authorization", "Bearer test-token");
+        .set("x-api-key", "test-api-key");
 
       expect(response.status).toBe(200);
       // The limit should be capped at 500 in getLogs function

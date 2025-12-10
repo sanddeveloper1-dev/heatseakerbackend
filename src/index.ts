@@ -17,7 +17,6 @@ import cors from "cors";
 import config from "./config/config";
 import betRoutes from "./routes/betRoutes";
 import raceRoutes from "./routes/raceRoutes";
-import authRoutes from "./routes/authRoutes";
 import logRoutes from "./routes/logRoutes";
 import logger from "./config/logger";
 import { readFileSync } from "fs";
@@ -36,13 +35,13 @@ const APP_VERSION = packageJson.version;
 // Initialize the Express app
 const app = express();
 
-// CORS configuration for Admin UI
+// CORS configuration
 app.use(
 	cors({
 		origin: config.uiOrigin,
 		credentials: true,
 		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-		allowedHeaders: ["Content-Type", "Authorization", "x-api-key"],
+		allowedHeaders: ["Content-Type", "x-api-key"],
 	})
 );
 
@@ -122,7 +121,6 @@ app.get("/health/db", async (req, res) => {
 });
 
 // Mount routes
-app.use("/api/auth", authRoutes);
 app.use("/api/logs", logRoutes);
 app.use("/api", betRoutes);
 app.use("/api/races", raceRoutes);

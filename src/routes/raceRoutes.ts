@@ -13,7 +13,7 @@
  */
 
 import { Router } from "express";
-import flexibleAuth from "../middleware/flexibleAuth"; // Import flexible auth middleware (JWT OR API key)
+import apiKeyAuth from "../middleware/apiKeyAuth";
 import {
 	handleDailyRaceIngestion,
 	getTracks,
@@ -29,31 +29,31 @@ import {
 const router = Router();
 
 // POST /api/races/daily - Main race data ingestion endpoint
-router.post("/daily", flexibleAuth, handleDailyRaceIngestion);
+router.post("/daily", apiKeyAuth, handleDailyRaceIngestion);
 
 // GET /api/races/tracks - Get all tracks
-router.get("/tracks", flexibleAuth, getTracks);
+router.get("/tracks", apiKeyAuth, getTracks);
 
 // GET /api/races - Get races by date range
-router.get("/", flexibleAuth, getRacesByDateRange);
+router.get("/", apiKeyAuth, getRacesByDateRange);
 
 // GET /api/races/entries/daily - Get all race entries for a specific date
-router.get("/entries/daily", flexibleAuth, getDailyRaceEntries);
+router.get("/entries/daily", apiKeyAuth, getDailyRaceEntries);
 
 // Winner endpoints
 // GET /api/races/:id/winner - Get winner for specific race
-router.get("/:id/winner", flexibleAuth, getWinnerByRaceId);
+router.get("/:id/winner", apiKeyAuth, getWinnerByRaceId);
 
 // GET /api/races/winners - Get winners by date range
-router.get("/winners", flexibleAuth, getWinnersByDateRange);
+router.get("/winners", apiKeyAuth, getWinnersByDateRange);
 
 // GET /api/races/winners/daily - Get winners for a specific date
-router.get("/winners/daily", flexibleAuth, getDailyRaceWinners);
+router.get("/winners/daily", apiKeyAuth, getDailyRaceWinners);
 
 // GET /api/races/winners/track/:trackId - Get winners by track
-router.get("/winners/track/:trackId", flexibleAuth, getWinnersByTrack);
+router.get("/winners/track/:trackId", apiKeyAuth, getWinnersByTrack);
 
 // GET /api/races/:id - Get specific race with entries
-router.get("/:id", flexibleAuth, getRaceById);
+router.get("/:id", apiKeyAuth, getRaceById);
 
 export default router; 

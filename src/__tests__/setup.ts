@@ -11,35 +11,16 @@ jest.mock("../services/logStorageService", () => ({
   cleanupOldLogs: jest.fn().mockResolvedValue(0),
 }));
 
-// Mock strictJwtAuth middleware - returns a function that Express can use
-jest.mock("../middleware/strictJwtAuth", () => {
+// Mock apiKeyAuth middleware - returns a function that Express can use
+jest.mock("../middleware/apiKeyAuth", () => {
   const mockMiddleware = (req: any, res: any, next: any) => {
-    const authHeader = req.header("Authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      res.status(401).json({
-        success: false,
-        message: "Unauthorized: No valid JWT token provided",
+    const apiKey = req.header("x-api-key");
+    if (!apiKey || apiKey !== "test-api-key") {
+      res.status(403).json({
+        error: apiKey ? "Forbidden: Invalid API key" : "Forbidden: No API key provided",
       });
       return;
     }
-
-    const token = authHeader.substring(7);
-    // Simulate token validation - reject "invalid-token"
-    if (token === "invalid-token") {
-      res.status(401).json({
-        success: false,
-        message: "Unauthorized: Invalid or expired token",
-        error: "Invalid token",
-      });
-      return;
-    }
-
-    // Valid token - set user
-    req.user = {
-      sub: "testadmin",
-      role: "admin",
-      exp: Math.floor(Date.now() / 1000) + 3600,
-    };
     next();
   };
   return {
