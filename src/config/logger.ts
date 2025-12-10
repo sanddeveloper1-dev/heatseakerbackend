@@ -47,11 +47,14 @@ function addToBuffer(level: LogEntry["level"], message: string, meta?: any): voi
   }
 
   // Store in database asynchronously (non-blocking, fire-and-forget)
-  // Don't await to avoid blocking the logging operation
-  storeLog(entry).catch(() => {
-    // Silently fail - database write errors are already handled in storeLog
-    // We don't want logging failures to break the application
-  });
+  // Skip database writes in test environment to avoid open handles in Jest
+  if (process.env.NODE_ENV !== "test" && !process.env.JEST_WORKER_ID) {
+    // Don't await to avoid blocking the logging operation
+    storeLog(entry).catch(() => {
+      // Silently fail - database write errors are already handled in storeLog
+      // We don't want logging failures to break the application
+    });
+  }
 }
 
 const logger = winston.createLogger({
