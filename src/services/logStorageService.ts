@@ -10,11 +10,22 @@
  * For complete terms, see SERVICE_AGREEMENT.md
  * 
  * Log storage service for persisting logs to PostgreSQL database
+ * 
+ * NOTE: Uses lazy import for database pool to avoid circular dependency:
+ * logger.ts → logStorageService.ts → database.ts → logger.ts
  */
 
-import pool from "../config/database";
-import logger from "../config/logger";
 import { LogEntry } from "../config/logger";
+
+/**
+ * Lazy import of database pool to break circular dependency
+ * logger.ts imports this module, which would import database.ts,
+ * which imports logger.ts. By using dynamic import, we break the cycle.
+ */
+async function getPool() {
+  const { default: pool } = await import("../config/database");
+  return pool;
+}
 
 /**
  * Store a log entry in the database (async, non-blocking)
@@ -27,6 +38,7 @@ export async function storeLog(entry: LogEntry): Promise<void> {
   }
 
   try {
+    const pool = await getPool();
     await pool.query(
       `INSERT INTO logs (timestamp, level, message, meta)
        VALUES ($1, $2, $3, $4)`,
@@ -66,6 +78,7 @@ export async function getLogsFromDatabase(options?: {
   }
 
   try {
+    const pool = await getPool();
     let query = `SELECT timestamp, level, message, meta FROM logs WHERE 1=1`;
     const params: any[] = [];
     let paramIndex = 1;
@@ -125,7 +138,11 @@ export async function getLogsFromDatabase(options?: {
       };
     });
   } catch (error: any) {
-    logger.error("Failed to retrieve logs from database", { error: error.message });
+    // Use console.error instead of logger to avoid circular dependency
+    // logger imports this module, so we can't use it here
+    if (process.env.NODE_ENV !== "test" && !process.env.JEST_WORKER_ID) {
+      console.error("Failed to retrieve logs from database:", error.message);
+    }
     return [];
   }
 }
@@ -141,6 +158,7 @@ export async function cleanupOldLogs(retentionDays: number): Promise<number> {
   }
 
   try {
+    const pool = await getPool();
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
 
@@ -151,12 +169,17 @@ export async function cleanupOldLogs(retentionDays: number): Promise<number> {
 
     const deletedCount = result.rowCount || 0;
     if (deletedCount > 0) {
+      // Use dynamic import to get logger to avoid circular dependency
+      const logger = (await import("../config/logger")).default;
       logger.info(`Cleaned up ${deletedCount} old log entries older than ${retentionDays} days`);
     }
 
     return deletedCount;
   } catch (error: any) {
-    logger.error("Failed to cleanup old logs", { error: error.message });
+    // Use console.error instead of logger to avoid circular dependency
+    if (process.env.NODE_ENV !== "test" && !process.env.JEST_WORKER_ID) {
+      console.error("Failed to cleanup old logs:", error.message);
+    }
     return 0;
   }
 }
