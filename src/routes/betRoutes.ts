@@ -13,7 +13,7 @@
  */
 
 import { Router } from "express";
-import apiKeyAuth from "../middleware/apiKeyAuth"; // Import API key middleware
+import apiKeyAuth from "../middleware/apiKeyAuth";
 import { handleBetRequest } from "../controllers/betController";
 
 const router = Router();

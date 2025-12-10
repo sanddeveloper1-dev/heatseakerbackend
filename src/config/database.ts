@@ -30,12 +30,11 @@ pool.on("error", (err: Error) => {
 	// Let the application handle reconnection logic
 });
 
-// Graceful shutdown
-process.on("SIGINT", async () => {
+// Graceful shutdown handler - will be called by main shutdown in index.ts
+export const closeDatabasePool = async (): Promise<void> => {
 	logger.info("Shutting down database pool...");
 	await pool.end();
-	process.exit(0);
-});
+};
 
 // Add connection health check method
 export const checkConnectionHealth = async (): Promise<boolean> => {
