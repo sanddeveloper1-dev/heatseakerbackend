@@ -136,3 +136,5 @@ dist
 
 # Deploy script
 deploy-ec2.sh
+
+ENVIRONMENT_SETUP.md
