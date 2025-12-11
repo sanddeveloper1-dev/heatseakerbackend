@@ -174,6 +174,26 @@ export function normalizeP3(value: any): string | null {
 }
 
 /**
+ * Normalize string field (trim whitespace, convert empty strings to null)
+ */
+export function normalizeString(value: any): string | null {
+	if (value === null || value === undefined) {
+		return null;
+	}
+
+	if (typeof value === 'string') {
+		const trimmed = value.trim();
+		return trimmed === '' ? null : trimmed;
+	}
+
+	if (typeof value === 'number') {
+		return value.toString();
+	}
+
+	return null;
+}
+
+/**
  * Validate and filter race entries
  */
 export function validateRaceEntry(entry: any): boolean {
@@ -217,11 +237,11 @@ export function normalizeRaceEntry(entry: any, raceId: string, sourceFile?: stri
 		will_pay: normalizeCurrency(entry.will_pay),  // New field
 		will_pay_1_p3: normalizeCurrency(entry.will_pay_1_p3),
 		win_pool: normalizeCurrency(entry.win_pool),
-		veto_rating: entry.veto_rating || null,
-		purse: entry.purse || null,
-		race_type: entry.race_type || null,
-		age: entry.age || null,
-		raw_data: entry.raw_data || null,
-		source_file: sourceFile || null
+		veto_rating: normalizeString(entry.veto_rating),
+		purse: normalizeString(entry.purse),
+		race_type: normalizeString(entry.race_type),
+		age: normalizeString(entry.age),
+		raw_data: normalizeString(entry.raw_data),
+		source_file: sourceFile ? normalizeString(sourceFile) : null
 	};
 } 

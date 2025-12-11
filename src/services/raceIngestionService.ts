@@ -197,9 +197,27 @@ export class RaceIngestionService {
 			}
 
 			// Normalize and create entry objects
-			const normalizedEntries: RaceEntry[] = validEntries.map((entry: any) =>
-				normalizeRaceEntry(entry, raceId, source)
-			);
+			const normalizedEntries: RaceEntry[] = validEntries.map((entry: any) => {
+				const normalized = normalizeRaceEntry(entry, raceId, source);
+				// Debug logging for purse, race_type, and age fields
+				if (entry.purse !== undefined || entry.race_type !== undefined || entry.age !== undefined) {
+					logger.debug("Normalizing entry fields", {
+						raceId,
+						horseNumber: entry.horse_number,
+						original: {
+							purse: entry.purse,
+							race_type: entry.race_type,
+							age: entry.age
+						},
+						normalized: {
+							purse: normalized.purse,
+							race_type: normalized.race_type,
+							age: normalized.age
+						}
+					});
+				}
+				return normalized;
+			});
 
 			// Batch upsert entries
 			await RaceEntryModel.batchUpsertWithClient(client, normalizedEntries);
