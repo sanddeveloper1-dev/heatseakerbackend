@@ -379,6 +379,29 @@ export class RaceEntryModel {
 					entry.will_pay_2, entry.will_pay, entry.will_pay_1_p3, entry.win_pool, entry.veto_rating, entry.purse, entry.race_type, entry.age, entry.raw_data, entry.source_file
 				]);
 
+				// Log what we're about to insert - check first entry
+				if (toInsert.length > 0) {
+					const firstEntry = toInsert[0];
+					logger.info("Bulk inserting entries", {
+						entryCount: toInsert.length,
+						firstEntry: {
+							race_id: firstEntry.race_id,
+							horse_number: firstEntry.horse_number,
+							purse: firstEntry.purse,
+							race_type: firstEntry.race_type,
+							age: firstEntry.age,
+							purseType: typeof firstEntry.purse,
+							raceTypeType: typeof firstEntry.race_type,
+							ageType: typeof firstEntry.age
+						},
+						paramCount: insertParams.length,
+						// Check the actual param values for first entry (indices 18, 19, 20)
+						firstEntryPurseParam: insertParams[18],
+						firstEntryRaceTypeParam: insertParams[19],
+						firstEntryAgeParam: insertParams[20]
+					});
+				}
+
 				const insertResult = await client.query(
 					`INSERT INTO race_entries (
 						race_id, horse_number, double, constant, p3, correct_p3, ml, live_odds,
@@ -388,12 +411,40 @@ export class RaceEntryModel {
 					insertParams
 				);
 
+				// Log what was actually inserted
+				logger.info("Entries inserted successfully", {
+					insertedCount: insertResult.rows.length,
+					sampleInserted: insertResult.rows[0] ? {
+						race_id: insertResult.rows[0].race_id,
+						horse_number: insertResult.rows[0].horse_number,
+						purse: insertResult.rows[0].purse,
+						race_type: insertResult.rows[0].race_type,
+						age: insertResult.rows[0].age
+					} : null
+				});
+
 				results.push(...insertResult.rows);
 			}
 
 			// Update existing entries
 			for (const entry of toUpdate) {
+				// Log what we're about to update
+				logger.info("Updating existing entry", {
+					race_id: entry.race_id,
+					horse_number: entry.horse_number,
+					purse: entry.purse,
+					race_type: entry.race_type,
+					age: entry.age
+				});
 				const result = await this.updateWithClient(client, entry);
+				// Log what was actually updated
+				logger.info("Entry updated successfully", {
+					race_id: result.race_id,
+					horse_number: result.horse_number,
+					purse: result.purse,
+					race_type: result.race_type,
+					age: result.age
+				});
 				results.push(result);
 			}
 

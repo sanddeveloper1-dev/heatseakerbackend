@@ -199,24 +199,39 @@ export class RaceIngestionService {
 			// Normalize and create entry objects
 			const normalizedEntries: RaceEntry[] = validEntries.map((entry: any) => {
 				const normalized = normalizeRaceEntry(entry, raceId, source);
-				// Debug logging for purse, race_type, and age fields
-				if (entry.purse !== undefined || entry.race_type !== undefined || entry.age !== undefined) {
-					logger.debug("Normalizing entry fields", {
-						raceId,
-						horseNumber: entry.horse_number,
-						original: {
-							purse: entry.purse,
-							race_type: entry.race_type,
-							age: entry.age
-						},
-						normalized: {
-							purse: normalized.purse,
-							race_type: normalized.race_type,
-							age: normalized.age
-						}
-					});
-				}
+				// Log ALL entries to see what's happening with purse, race_type, and age
+				logger.info("Normalizing entry fields", {
+					raceId,
+					horseNumber: entry.horse_number,
+					original: {
+						purse: entry.purse,
+						race_type: entry.race_type,
+						age: entry.age
+					},
+					normalized: {
+						purse: normalized.purse,
+						race_type: normalized.race_type,
+						age: normalized.age
+					},
+					normalizedEntryKeys: Object.keys(normalized),
+					hasPurse: 'purse' in normalized,
+					hasRaceType: 'race_type' in normalized,
+					hasAge: 'age' in normalized
+				});
 				return normalized;
+			});
+
+			// Log before database insertion
+			logger.info("About to insert entries into database", {
+				raceId,
+				entryCount: normalizedEntries.length,
+				sampleEntry: normalizedEntries[0] ? {
+					horse_number: normalizedEntries[0].horse_number,
+					purse: normalizedEntries[0].purse,
+					race_type: normalizedEntries[0].race_type,
+					age: normalizedEntries[0].age,
+					allKeys: Object.keys(normalizedEntries[0])
+				} : null
 			});
 
 			// Batch upsert entries

@@ -219,7 +219,7 @@ export function validateRaceEntry(entry: any): boolean {
  * Clean and normalize a race entry object
  */
 export function normalizeRaceEntry(entry: any, raceId: string, sourceFile?: string): any {
-	return {
+	const normalized = {
 		race_id: raceId,
 		horse_number: validateHorseNumber(entry.horse_number),
 		double: normalizeNumeric(entry.double),
@@ -244,4 +244,12 @@ export function normalizeRaceEntry(entry: any, raceId: string, sourceFile?: stri
 		raw_data: normalizeString(entry.raw_data),
 		source_file: sourceFile ? normalizeString(sourceFile) : null
 	};
+
+	// Ensure these fields are always present (even if null) for database insertion
+	// This prevents them from being dropped during object serialization
+	if (!('purse' in normalized)) normalized.purse = null;
+	if (!('race_type' in normalized)) normalized.race_type = null;
+	if (!('age' in normalized)) normalized.age = null;
+
+	return normalized;
 } 
