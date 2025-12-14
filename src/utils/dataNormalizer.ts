@@ -246,11 +246,5 @@ export function normalizeRaceEntry(entry: any, raceId: string, sourceFile?: stri
 		source_file: sourceFile ? normalizeString(sourceFile) : null
 	};
 
-	// Ensure these fields are always present (even if null) for database insertion
-	// This prevents them from being dropped during object serialization
-	if (normalized.purse === undefined) normalized.purse = null;
-	if (normalized.race_type === undefined) normalized.race_type = null;
-	if (normalized.age === undefined) normalized.age = null;
-
 	return normalized;
 } 
