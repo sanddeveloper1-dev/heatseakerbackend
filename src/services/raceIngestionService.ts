@@ -55,7 +55,10 @@ export class RaceIngestionService {
 		try {
 			logger.info("Starting daily race data processing", {
 				source: data.source,
-				raceCount: data.races.length
+				raceCount: data.races.length,
+				raceWinnersCount: data.race_winners ? Object.keys(data.race_winners).length : 0,
+				raceWinnersKeys: data.race_winners ? Object.keys(data.race_winners) : [],
+				fullRaceWinnersData: data.race_winners
 			});
 
 			// Process races with transaction support
@@ -295,14 +298,46 @@ export class RaceIngestionService {
 		raceWinnersData: { [raceId: string]: RaceWinnerData }
 	): Promise<{ success: boolean; winner?: any; error?: string }> {
 		try {
+			// Log full raceWinnersData object for debugging
+			const raceIdParts = raceId.split('_');
+			const trackCode = raceIdParts[0];
+			const raceNumber = raceIdParts[2];
+			const allWinnerKeys = Object.keys(raceWinnersData || {});
+			
+			logger.info("Processing race winner - full data object", {
+				raceId,
+				trackCode,
+				raceNumber,
+				raceWinnersDataKeys: allWinnerKeys,
+				raceWinnersDataCount: allWinnerKeys.length,
+				fullRaceWinnersData: raceWinnersData,
+				matchingLogic: {
+					lookingForTrackCode: trackCode,
+					lookingForRaceNumber: raceNumber,
+					availableKeys: allWinnerKeys.map(key => ({
+						key,
+						includesTrackCode: key.includes(trackCode),
+						includesRaceNumber: key.includes(raceNumber),
+						wouldMatch: key.includes(trackCode) && key.includes(raceNumber)
+					}))
+				}
+			});
+
 			// Look for winner data for this specific race
 			// The raceWinnersData should contain entries like "SARATOGA 9-1-25 Race 3"
-			const winnerKey = Object.keys(raceWinnersData).find(key =>
-				key.includes(raceId.split('_')[0]) && // Match track
-				key.includes(raceId.split('_')[2])    // Match race number
+			const winnerKey = allWinnerKeys.find(key =>
+				key.includes(trackCode) && // Match track
+				key.includes(raceNumber)    // Match race number
 			);
 
 			if (!winnerKey) {
+				logger.warn("No winner data found for race", {
+					raceId,
+					trackCode,
+					raceNumber,
+					availableKeys: allWinnerKeys,
+					raceWinnersData: raceWinnersData
+				});
 				return {
 					success: false,
 					error: `No winner data found for race ${raceId}`
