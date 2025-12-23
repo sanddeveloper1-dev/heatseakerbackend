@@ -17,7 +17,7 @@ import { RaceModel, Race } from "../models/Race";
 import { RaceEntryModel, RaceEntry } from "../models/RaceEntry";
 import { RaceWinnerModel } from "../models/RaceWinner";
 import { RaceWinnerService } from "./raceWinnerService";
-import { extractTrackCode, getStandardizedTrackName } from "../utils/trackMapper";
+import { extractTrackCode, getStandardizedTrackName, TRACK_MAPPING } from "../utils/trackMapper";
 import {
 	convertDateFormat,
 	generateRaceId,
@@ -303,37 +303,45 @@ export class RaceIngestionService {
 			const trackCode = raceIdParts[0];
 			const raceNumber = raceIdParts[2];
 			const allWinnerKeys = Object.keys(raceWinnersData || {});
-			
+
+			// Get full track name for matching (frontend uses full names like "PARX", not codes like "PRX")
+			const trackName = TRACK_MAPPING[trackCode] || trackCode;
+
 			logger.info("Processing race winner - full data object", {
 				raceId,
 				trackCode,
+				trackName,
 				raceNumber,
 				raceWinnersDataKeys: allWinnerKeys,
 				raceWinnersDataCount: allWinnerKeys.length,
 				fullRaceWinnersData: raceWinnersData,
 				matchingLogic: {
 					lookingForTrackCode: trackCode,
+					lookingForTrackName: trackName,
 					lookingForRaceNumber: raceNumber,
 					availableKeys: allWinnerKeys.map(key => ({
 						key,
 						includesTrackCode: key.includes(trackCode),
+						includesTrackName: key.includes(trackName),
 						includesRaceNumber: key.includes(raceNumber),
-						wouldMatch: key.includes(trackCode) && key.includes(raceNumber)
+						wouldMatch: key.includes(trackName) && key.includes(raceNumber)
 					}))
 				}
 			});
 
 			// Look for winner data for this specific race
-			// The raceWinnersData should contain entries like "SARATOGA 9-1-25 Race 3"
+			// The raceWinnersData should contain entries like "PARX 12-22-25 Race 03"
+			// Use full track name (e.g., "PARX") instead of code (e.g., "PRX") for matching
 			const winnerKey = allWinnerKeys.find(key =>
-				key.includes(trackCode) && // Match track
-				key.includes(raceNumber)    // Match race number
+				key.includes(trackName) &&      // Match full track name (e.g., "PARX")
+				key.includes(raceNumber)         // Match race number (e.g., "03")
 			);
 
 			if (!winnerKey) {
 				logger.warn("No winner data found for race", {
 					raceId,
 					trackCode,
+					trackName,
 					raceNumber,
 					availableKeys: allWinnerKeys,
 					raceWinnersData: raceWinnersData
@@ -407,8 +415,11 @@ export class RaceIngestionService {
 		const standardDate = this.convertDateToDbFormat(dateStr);
 		const dateFormatted = standardDate.replace(/-/g, '');
 
+		// Zero-pad race number to match generateRaceId format (e.g., "3" -> "03")
+		const raceNumberPadded = raceNumber.padStart(2, '0');
+
 		// Build new race_id
-		return `${trackCode}_${dateFormatted}_${raceNumber}`;
+		return `${trackCode}_${dateFormatted}_${raceNumberPadded}`;
 	}
 
 	/**
